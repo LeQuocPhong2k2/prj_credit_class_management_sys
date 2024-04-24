@@ -5,20 +5,27 @@ import axios from 'axios'
 import { toast, Toaster } from 'react-hot-toast'
 import 'react-toastify/dist/ReactToastify.css'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
+import ReCAPTCHA from 'react-google-recaptcha'
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
 export default function Login() {
   const [studentCode, setStudentCode] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [confirmCode, setConfirmationCode] = useState('')
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword)
+  }
+  const [recaptchaToken, setRecaptchaToken] = useState(null)
+  const handleRecaptcha = (token) => {
+    setRecaptchaToken(token)
   }
 
   const handleStudentLogin = async (e) => {
     e.preventDefault()
 
     // kiểm tra rỗng
-    if (studentCode === '' || password === '') {
-      toast.error('Vui lòng nhập đầy đủ thông tin!!!')
+    if (studentCode === '' || password === '' || recaptchaToken === null) {
+      toast.error('Vui lòng nhập đầy đủ thông tin và xác nhận CAPTCHA!!!')
       // Đặt biến errorShown thành true để chỉ hiển thị một lần
 
       return
@@ -29,7 +36,8 @@ export default function Login() {
       .post('http://localhost:3003/account/login', {
         userCode: studentCode,
         password: password,
-        accountType: accountType
+        accountType: accountType,
+        recaptchaToken: recaptchaToken
       })
       .then((response) => {
         console.log(response)
@@ -101,9 +109,28 @@ export default function Login() {
               {/* </span> */}
             </div>
           </div>
+
+          <div className='grid grid-cols-10 mt-2 '>
+            <div className='flex justify-center text-base items-center bg-[#fee2e2] text-dark col-span-3'>
+              <label htmlFor=''>Xác nhận:</label>
+            </div>
+
+            <div className='col-span-7'>
+              <ReCAPTCHA sitekey='6LfgJcYpAAAAAGUFb9AfiadfSEHo69CLj_ETYu8q' onChange={handleRecaptcha} />
+            </div>
+          </div>
+
           <div className='grid grid-cols-1 mt-2 bg-blue-600 text-white font-bold p-2 cursor-pointer'>
             {/* <input onClick={handleStudentLogin} className='cursor-pointer' type='button' value={'Đăng nhập'} /> */}
-            <input type='submit' value={'Đăng nhập'} className='cursor-pointer' />
+            <input
+              type='submit'
+              value={'Đăng nhập'}
+              // className=''
+              // className='g-recaptcha cursor-pointer'
+              // data-sitekey='6Lc_TcUpAAAAACarNssYe65_5t0BomOkk_bJ70k1'
+              // data-callback='onSubmit'
+              // data-action='submit'
+            />
           </div>
         </form>
       </dir>
