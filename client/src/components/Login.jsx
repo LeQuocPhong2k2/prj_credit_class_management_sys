@@ -51,7 +51,7 @@ export default function Login() {
   }
 
   return (
-    <div class='flex justify-center h-screen bg-white'>
+    <div class='flex justify-center h-screen bg-[#ffff]'>
       <Toaster toastOptions={{ duration: 2200 }} />
       <dir class='border border-sky-500 w-fit h-fit mt-20 p-10 rounded-lg shadow-lg shadow-indigo-500/40'>
         <form onSubmit={handleStudentLogin}>
@@ -59,20 +59,33 @@ export default function Login() {
             <img src={logo} alt='cloud' />
           </div>
 
-          <div className='grid grid-cols-2 bg-red-800'>
-            <div className='flex justify-center text-base items-center bg-slate-500'>
+          {/* <div className='grid grid-cols-2 bg-red-800'>
+            <div className='flex justify-center text-base items-center bg-[#fee2e2] text-dark '>
               <label htmlFor=''>MSSV:</label>
             </div>
             <div>
               <input onChange={(e) => setStudentCode(e.target.value)} name='studentCode' type='text' />
             </div>
+          </div> */}
+          <div className='grid grid-cols-10 bg-red-800'>
+            <div className='flex justify-center text-base items-center bg-[#fee2e2] text-dark col-span-3'>
+              <label htmlFor=''>MSSV:</label>
+            </div>
+            <div className='col-span-7'>
+              <input
+                className='w-full'
+                onChange={(e) => setStudentCode(e.target.value)}
+                name='studentCode'
+                type='text'
+              />
+            </div>
           </div>
-          <div className='grid grid-cols-2 mt-2 bg-red-800'>
-            <div className='flex justify-center text-base items-center bg-slate-500'>
+          <div className='grid grid-cols-10 mt-2 bg-red-800'>
+            <div className='flex justify-center text-base items-center bg-[#fee2e2] text-dark col-span-3'>
               <label htmlFor=''>Mật khẩu:</label>
             </div>
-            <div>
-              <input onChange={(e) => setPassword(e.target.value)} name='password' type='password' />
+            <div className='col-span-7'>
+              <input className='w-full' onChange={(e) => setPassword(e.target.value)} name='password' type='password' />
             </div>
           </div>
           <div className='grid grid-cols-1 mt-2 bg-blue-600 text-white font-bold p-2 cursor-pointer'>
