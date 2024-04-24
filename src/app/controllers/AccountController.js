@@ -1,22 +1,9 @@
 import Account from '../models/Account.js'
+import Student from '../models/Student.js'
 
 class AccountController {
   // async login web
   async login(req, res) {
-    // // lấy tất cả dữ liệu trong accounts
-    // try {
-    //   const accounts = await Account.find()
-    //   if (accounts.length === 0) {
-    //     return res.status(400).json({ message: 'Không tìm thấy tài khoản' })
-    //   }
-    //   return res.status(200).json({
-    //     message: 'Login Success',
-    //     accounts: accounts,
-    //   })
-    // } catch (err) {
-    //   return res.status(500).json({ message: 'Server Error' })
-    // }
-
     try {
       const { studentCode, password } = req.body
       // const account = await Account.findOne({
@@ -33,10 +20,19 @@ class AccountController {
       if (account.password !== password) {
         return res.status(400).json({ message: 'Password not match' })
       }
-      return res.status(200).json({
-        message: 'Login Success',
-        account: account,
-      })
+      // return res.status(200).json({
+      //   message: 'Login Success',
+      //   account: account,
+      // })
+      // lấy biến account_id từ account
+      const account_id = account._id
+      if (account && account.password === password) {
+        console.log('Đăng nhập thành công')
+        res.status(200).json({
+          message: 'Login successfully!!!',
+          account_id: account_id,
+        })
+      }
     } catch (err) {
       return res.status(500).json({ message: 'Server Error' })
     }
