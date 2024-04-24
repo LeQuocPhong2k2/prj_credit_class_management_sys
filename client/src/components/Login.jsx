@@ -2,23 +2,36 @@ import React from 'react'
 import { useState, useEffect, useRef } from 'react'
 import logo from '../assets/logo.png'
 export default function Login() {
-  const [studentCode, setStudentCode] = useState('')
+  const [userCode, setUserCode] = useState('')
   const [password, setPassword] = useState('')
 
+  useEffect(() => {
+    document.title = 'Đăng nhập'
+  }, [])
+
   const handleLogin = async () => {
+    if (!userCode || !password) {
+      alert('Vui lòng nhập đầy đủ thông tin')
+      return
+    }
+
     const res = await fetch('http://localhost:3003/account/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        studentCode,
+        userCode,
         password
       })
+    }).then((res) => {
+      if (res.status === 400) {
+        alert('Sai tài khoản hoặc mật khẩu')
+      }
     })
-    console.log(studentCode, password)
-    const data = await res.json()
-    console.log(data)
+    // console.log(userCode, password)
+    // const data = await res.json()
+    // console.log(data)
   }
 
   return (
@@ -34,7 +47,7 @@ export default function Login() {
               <label htmlFor=''>MSSV:</label>
             </div>
             <div>
-              <input onChange={(e) => setStudentCode(e.target.value)} name='studentCode' type='text' />
+              <input onChange={(e) => setUserCode(e.target.value)} name='studentCode' type='text' />
             </div>
           </div>
           <div className='grid grid-cols-2 mt-2 bg-red-800'>
