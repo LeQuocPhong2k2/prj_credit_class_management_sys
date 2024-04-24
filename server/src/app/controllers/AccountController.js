@@ -13,7 +13,7 @@ class AccountController {
       console.log('Dữ liệu nhận được', req.body)
       console.log('account', account)
       if (!account) {
-        return res.status(400).json({ message: 'Không tìm thấy tài khoản' })
+        return res.status(200).json({ message: 'Không tìm thấy tài khoản' })
       }
       if (
         account.password !== password ||

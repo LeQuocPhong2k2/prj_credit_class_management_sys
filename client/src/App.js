@@ -5,7 +5,13 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 function App() {
   return (
     <div className='App'>
-      <Login />
+      <BrowserRouter>
+        <Routes>
+          <Route path='/login' element={<Login />} />
+        </Routes>
+      </BrowserRouter>
+
+      {/* <Login /> */}
     </div>
   )
 }

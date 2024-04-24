@@ -14,6 +14,7 @@ class StudentController {
       console.log('Lấy student từ account thành công ')
       res.status(200).json({
         message: 'Login successfully!!!',
+        student_id: student._id,
         student: student,
       })
     } else {
