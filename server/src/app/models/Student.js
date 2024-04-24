@@ -4,8 +4,6 @@ import { Schema } from 'mongoose'
 const StudentSchema = new Schema({
   account_id: { type: Schema.Types.ObjectId, ref: 'Account' },
   userName: String,
-  firstName: String,
-  lastName: String,
   email: String,
   dateOfBirth: Date,
   gender: Boolean,
