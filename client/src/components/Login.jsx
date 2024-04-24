@@ -4,9 +4,14 @@ import logo from '../assets/logo.png'
 import axios from 'axios'
 import { toast, Toaster } from 'react-hot-toast'
 import 'react-toastify/dist/ReactToastify.css'
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
 export default function Login() {
   const [studentCode, setStudentCode] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword)
+  }
 
   const handleStudentLogin = async (e) => {
     e.preventDefault()
@@ -31,7 +36,7 @@ export default function Login() {
         if (response.data.message === 'Không tìm thấy tài khoản') {
           toast.error('Sinh Viên không tồn tại!!!')
         } else if (response.data.message === 'Password or AccountType not match') {
-          toast.error('Mật khẩu không đúng hoặc loại tài khoản không đúng!!!')
+          toast.error('Mật khẩu  hoặc loại tài khoản không đúng!!!')
         } else if (response.data.message === 'Login successfully!!!') {
           // localStorage.setItem('account_id', response.data.account_id)
           // window.location.href = 'http://localhost:3000/dashboard'
@@ -85,7 +90,15 @@ export default function Login() {
               <label htmlFor=''>Mật khẩu:</label>
             </div>
             <div className='col-span-7'>
-              <input className='w-full' onChange={(e) => setPassword(e.target.value)} name='password' type='password' />
+              <input
+                className='w-full'
+                onChange={(e) => setPassword(e.target.value)}
+                type='password'
+                // type={showPassword ? 'text' : 'password'}
+              />
+              {/* <span className='span-eye' onClick={togglePasswordVisibility}>
+                {showPassword ? <FaEyeSlash /> : <FaEye />} {/* Sử dụng icon con mắt */}
+              {/* </span> */}
             </div>
           </div>
           <div className='grid grid-cols-1 mt-2 bg-blue-600 text-white font-bold p-2 cursor-pointer'>
