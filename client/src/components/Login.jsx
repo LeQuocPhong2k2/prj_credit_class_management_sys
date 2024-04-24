@@ -1,6 +1,7 @@
 import React from 'react'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import logo from '../assets/logo.png'
+import apiLogin from '../api/Login'
 export default function Login() {
   const [userCode, setUserCode] = useState('')
   const [password, setPassword] = useState('')
@@ -14,24 +15,16 @@ export default function Login() {
       alert('Vui lòng nhập đầy đủ thông tin')
       return
     }
-
-    const res = await fetch('http://localhost:3003/account/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        userCode,
-        password
-      })
-    }).then((res) => {
-      if (res.status === 400) {
-        alert('Sai tài khoản hoặc mật khẩu')
+    try {
+      const res = await apiLogin(userCode, password)
+      if (res.status === 200) {
+        localStorage.setItem('account_id', res.data.account_id)
+        window.location.href = '/'
       }
-    })
-    // console.log(userCode, password)
-    // const data = await res.json()
-    // console.log(data)
+    } catch (error) {
+      console.error(error)
+      alert('Đăng nhập thất bại')
+    }
   }
 
   return (
