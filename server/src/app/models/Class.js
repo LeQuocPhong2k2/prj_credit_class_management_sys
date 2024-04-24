@@ -6,9 +6,10 @@ const ClassSchema = new Schema(
     course: { type: Schema.Types.ObjectId, ref: 'Course' },
     teacher: [{ type: Schema.Types.ObjectId, ref: 'Teacher' }],
     maxStudents: Number,
-    currentStudents: [{ type: Schema.Types.ObjectId, ref: 'Student' }],
+    currentStudents: [{ type: Schema.Types.Mixed, ref: 'Student' }],
     waitlist: [{ type: Schema.Types.ObjectId, ref: 'Student' }],
   },
   { collection: 'class' }
 )
+// currentStudents: [Schema.Types.Mixed] cho phép lưu nhiều kiểu dữ liệu khác nhau để dễ dàng test
 export default mongoose.model('Class', ClassSchema)
