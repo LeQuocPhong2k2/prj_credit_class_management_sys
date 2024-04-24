@@ -1,4 +1,3 @@
-import Account from '../models/Account.js'
 import Student from '../models/Student.js'
 
 class StudentController {
