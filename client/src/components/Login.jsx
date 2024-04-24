@@ -109,13 +109,9 @@ export default function Login() {
               {/* </span> */}
             </div>
           </div>
-
-          <div className='grid grid-cols-10 mt-2 '>
-            <div className='flex justify-center text-base items-center bg-[#fee2e2] text-dark col-span-3'>
-              <label htmlFor=''>Xác nhận:</label>
-            </div>
-
-            <div className='col-span-7'>
+          <div className='grid grid-cols-10 mt-2 flex justify-center items-center'>
+            {/* <div className='col-span-7'> */}
+            <div className='col-start-3 col-end-13'>
               <ReCAPTCHA sitekey='6LfgJcYpAAAAAGUFb9AfiadfSEHo69CLj_ETYu8q' onChange={handleRecaptcha} />
             </div>
           </div>
