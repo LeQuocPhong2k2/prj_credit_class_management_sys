@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import logo from '../assets/logo.png'
 import axios from 'axios'
 import { toast, Toaster } from 'react-hot-toast'
@@ -7,8 +7,9 @@ import 'react-toastify/dist/ReactToastify.css'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import ReCAPTCHA from 'react-google-recaptcha'
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
+import apiLogin from '../api/Login'
 export default function Login() {
-  const [studentCode, setStudentCode] = useState('')
+  const [userCode, setUserCode] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [confirmCode, setConfirmationCode] = useState('')
@@ -61,6 +62,25 @@ export default function Login() {
             })
         }
       })
+  useEffect(() => {
+    document.title = 'Đăng nhập'
+  }, [])
+
+  const handleLogin = async () => {
+    if (!userCode || !password) {
+      alert('Vui lòng nhập đầy đủ thông tin')
+      return
+    }
+    try {
+      const res = await apiLogin(userCode, password)
+      if (res.status === 200) {
+        localStorage.setItem('account_id', res.data.account_id)
+        window.location.href = '/'
+      }
+    } catch (error) {
+      console.error(error)
+      alert('Đăng nhập thất bại')
+    }
   }
 
   return (
@@ -77,7 +97,7 @@ export default function Login() {
               <label htmlFor=''>MSSV:</label>
             </div>
             <div>
-              <input onChange={(e) => setStudentCode(e.target.value)} name='studentCode' type='text' />
+              <input onChange={(e) => setUserCode(e.target.value)} name='studentCode' type='text' />
             </div>
           </div> */}
           <div className='grid grid-cols-10 bg-red-800'>
