@@ -5,7 +5,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
 
 function App() {
-  const isAuth = function() {
+  const isAuth = function () {
     if (!localStorage.getItem('account_id')) {
       window.location.href = '/login'
     }
