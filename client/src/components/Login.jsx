@@ -26,6 +26,11 @@ export default function Login() {
       const res = await apiLogin(userCode, password, accountType, recaptchaToken)
       if (res.status === 200) {
         toast.success('Đăng nhập thành công')
+        setTimeout(() => {
+          // This code will be executed after 2 seconds
+          localStorage.setItem('account_id', res.data.account_id)
+          window.location.href = '/'
+        }, 1000)
       }
     } catch (error) {
       toast.error('Đăng nhập thất bại')
