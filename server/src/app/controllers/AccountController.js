@@ -13,17 +13,6 @@ class AccountController {
       console.log("Dữ liệu nhận được", req.body);
       console.log("account", account);
       if (!account) {
-        console.log('Không tìm thấy tài khoản')
-        return res.status(200).json({ message: 'Không tìm thấy tài khoản' })
-      }
-      if (
-        account.password !== password ||
-        account.accountType !== accountType
-      ) {
-        console.log('Password or AccountType not match')
-        return res
-          .status(200)
-          .json({ message: 'Password or AccountType not match' })
         return res.status(400).json({ message: "Không tìm thấy tài khoản" });
       }
       if (account.password !== password || account.accountType !== accountType) {
