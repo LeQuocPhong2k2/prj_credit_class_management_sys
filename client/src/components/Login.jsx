@@ -92,14 +92,7 @@ export default function Login() {
             <img src={logo} alt='cloud' />
           </div>
 
-          {/* <div className='grid grid-cols-2 bg-red-800'>
-            <div className='flex justify-center text-base items-center bg-[#fee2e2] text-dark '>
-              <label htmlFor=''>MSSV:</label>
-            </div>
-            <div>
-              <input onChange={(e) => setUserCode(e.target.value)} name='studentCode' type='text' />
-            </div>
-          </div> */}
+        
           <div className='grid grid-cols-10 bg-red-800'>
             <div className='flex justify-center text-base items-center bg-[#fee2e2] text-dark col-span-3'>
               <label htmlFor=''>MSSV:</label>
