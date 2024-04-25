@@ -20,7 +20,7 @@ const TeacherSchema = new Schema({
     required: true,
   },
   gender: {
-    type: Boolean,
+    type: String,
     required: true,
   },
   department: {
@@ -36,4 +36,4 @@ const TeacherSchema = new Schema({
   ],
 })
 
-module.exports = mongoose.model('Teacher', TeacherSchema)
+export default mongoose.model('Teacher', TeacherSchema)
