@@ -1,6 +1,6 @@
-import Login from './components/Login'
-import Home from './components/User/Home'
-import NotFound from './components/NotFound'
+import Login from '../../client/src/components/User/Login'
+import Home from '../../client/src/components/User/Home'
+import NotFound from '../../client/src/components/NotFound'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
 
@@ -16,6 +16,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path='/' element={<Home />} onEnter={isAuth} />
+          <Route path='/home' element={<Home />} onEnter={isAuth} />
           <Route path='/login' element={<Login />} />
           <Route path='/not-found' element={<NotFound />} />
           <Route path='*' element={<Navigate to='/not-found' />} />
