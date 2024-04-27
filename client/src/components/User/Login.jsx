@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState, useEffect, useRef } from 'react'
-import logo from '../assets/logo.png'
+import logo from '../../assets/logo.png'
 import axios from 'axios'
 import { toast, Toaster } from 'react-hot-toast'
 import 'react-toastify/dist/ReactToastify.css'
@@ -55,6 +55,7 @@ export default function Login() {
             .then((response) => {
               toast.success('Login successfully!!!')
               localStorage.setItem('student_id', JSON.stringify(response.data.student_id))
+              localStorage.setItem('student', JSON.stringify(response.data.student))
               // window.location.href = 'http://localhost:3000/dashboardwait'
               toast.success('Login successfully!!!')
               alert('Login successfully!!!')
@@ -110,8 +111,8 @@ export default function Login() {
             </div>
           </div>
           <div className='grid grid-cols-10 mt-2 flex justify-center items-center'>
-            {/* <div className='col-span-7'> */}
-            <div className='col-start-3 col-end-13'>
+            <div className='col-span-7'>
+              {/* <div className='col-start-3 col-end-13'> */}
               <ReCAPTCHA sitekey='6LfgJcYpAAAAAGUFb9AfiadfSEHo69CLj_ETYu8q' onChange={handleRecaptcha} />
             </div>
           </div>

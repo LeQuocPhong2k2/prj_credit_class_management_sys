@@ -1,4 +1,5 @@
 import Student from '../models/Student.js'
+import Majoir from '../models/Major.js'
 
 class StudentController {
   // trả về 1 student từ account_id
@@ -9,6 +10,10 @@ class StudentController {
     // từ account đã đăng nhập thành công thì tìm ra student tương ứng với account đó
     const student = await Student.findOne({ account_id: account_id })
     // console.log('student: ' + student)
+    // từ major ở student tìm ra majors tương ứng
+    const major_id = student.major
+    const major = await Majoir.findOne({ _id: major_id })
+    console.log('major: ' + major)
 
     if (student) {
       console.log('Lấy student từ account thành công ')
@@ -16,6 +21,7 @@ class StudentController {
         message: 'Login successfully!!!',
         student_id: student._id,
         student: student,
+        majorName: major.majorName,
       })
     } else {
       console.log('Không tìm thấy student từ account')

@@ -8,6 +8,27 @@ const ClassSchema = new Schema(
     maxStudents: Number,
     currentStudents: [{ type: Schema.Types.Mixed, ref: 'Student' }],
     waitlist: [{ type: Schema.Types.ObjectId, ref: 'Student' }],
+    registrationOpenTime: { type: Date, default: Date.now },
+    registrationCloseTime: {
+      type: Date,
+      default: () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    }, // 1 month later
+    startTime: {
+      type: Date,
+      default: () =>
+        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000 + 24 * 60 * 60 * 1000),
+    }, // 1 day after registrationCloseTime
+    endTime: {
+      type: Date,
+      default: () =>
+        new Date(
+          Date.now() +
+            30 * 24 * 60 * 60 * 1000 +
+            24 * 60 * 60 * 1000 +
+            90 * 24 * 60 * 60 * 1000
+        ),
+    }, // 3 months after startTime
+    status: String,
   },
   { collection: 'class' }
 )
