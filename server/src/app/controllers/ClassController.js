@@ -25,27 +25,32 @@ class ClassController {
     }
   }
 
-  // create a new class / role admin
+  // create a new class
   async createClass(req, res) {
-    const { className, course_id, maxStudents } = req.body
+    const { className, course, maxStudents } = req.body
     // lấy danh sách teacher
     const teacher = req.body.list_teacherId
 
     // lấy tên classNameNew = className - course
-    const classNameNew = className + ' ' + '-' + ' ' + course_id
+    const classNameNew = className + ' ' + '-' + ' ' + course
+
+    // console.log(
+    //   'Các thông tin nhận được: ',
+    //   className,
+    //   course,
+    //   maxStudents,
+    //   teacher,
+    //   classNameNew
+    // )
+    // return res.status(200).json({ message: 'Create class successfully!!!' })
 
     const newClass = new Class({
       className: classNameNew,
-      course: course_id,
+      course: course,
       teacher: Array.isArray(teacher) ? teacher : [teacher],
       maxStudents: maxStudents,
     })
     newClass.save()
-    // chỗ này test hiện ra ngày giờ theo múi giờ VN
-    const utcDate = newClass.registrationOpenTime // this is the date you fetched from MongoDB
-    const vnDate = moment(utcDate).tz('Asia/Ho_Chi_Minh').format()
-    console.log(vnDate)
-    //---------
     console.log('Tạo class thành công')
 
     res
