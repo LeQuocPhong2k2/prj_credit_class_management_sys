@@ -12,5 +12,6 @@ const StudentSchema = new Schema({
   registeredCourses: [{ type: Schema.Types.ObjectId, ref: 'Course' }],
   totalCredits: Number,
   GPA: Number,
+  definiteClass: String,
 })
 export default mongoose.model('Student', StudentSchema)

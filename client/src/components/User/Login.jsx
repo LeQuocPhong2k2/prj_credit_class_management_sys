@@ -2,8 +2,9 @@ import React, { useState } from 'react'
 import ReCAPTCHA from 'react-google-recaptcha'
 import { Toaster, toast } from 'react-hot-toast'
 import 'react-toastify/dist/ReactToastify.css'
-import logo from '../assets/logo.png'
-import apiLogin from '../api/Login'
+import logo from '../../assets/logo.png'
+// import apiLogin from '../../api/Login'
+import { login } from '../../api/Login'
 
 export default function Login() {
   const [userCode, setuserCode] = useState('')
@@ -23,7 +24,7 @@ export default function Login() {
     const accountType = 'student'
 
     try {
-      const res = await apiLogin(userCode, password, accountType, recaptchaToken)
+      const res = await login(userCode, password, accountType, recaptchaToken)
       if (res.status === 200) {
         toast.success('Đăng nhập thành công')
         setTimeout(() => {
