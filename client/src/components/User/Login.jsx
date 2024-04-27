@@ -1,20 +1,14 @@
-import React from 'react'
-import { useState, useEffect, useRef } from 'react'
-import logo from '../../assets/logo.png'
-import axios from 'axios'
-import { toast, Toaster } from 'react-hot-toast'
-import 'react-toastify/dist/ReactToastify.css'
-import { FaEye, FaEyeSlash } from 'react-icons/fa'
+import React, { useState } from 'react'
 import ReCAPTCHA from 'react-google-recaptcha'
-import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
+import { Toaster, toast } from 'react-hot-toast'
+import 'react-toastify/dist/ReactToastify.css'
+import logo from '../assets/logo.png'
+import apiLogin from '../api/Login'
+
 export default function Login() {
-  const [studentCode, setStudentCode] = useState('')
+  const [userCode, setuserCode] = useState('')
   const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [confirmCode, setConfirmationCode] = useState('')
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword)
-  }
+
   const [recaptchaToken, setRecaptchaToken] = useState(null)
   const handleRecaptcha = (token) => {
     setRecaptchaToken(token)
@@ -22,46 +16,25 @@ export default function Login() {
 
   const handleStudentLogin = async (e) => {
     e.preventDefault()
-
-    // kiểm tra rỗng
-    if (studentCode === '' || password === '' || recaptchaToken === null) {
+    if (userCode === '' || password === '' || recaptchaToken === null) {
       toast.error('Vui lòng nhập đầy đủ thông tin và xác nhận CAPTCHA!!!')
-      // Đặt biến errorShown thành true để chỉ hiển thị một lần
-
       return
     }
     const accountType = 'student'
 
-    axios
-      .post('http://localhost:3003/account/login', {
-        userCode: studentCode,
-        password: password,
-        accountType: accountType,
-        recaptchaToken: recaptchaToken
-      })
-      .then((response) => {
-        console.log(response)
-        if (response.data.message === 'Không tìm thấy tài khoản') {
-          toast.error('Sinh Viên không tồn tại!!!')
-        } else if (response.data.message === 'Password or AccountType not match') {
-          toast.error('Mật khẩu  hoặc loại tài khoản không đúng!!!')
-        } else if (response.data.message === 'Login successfully!!!') {
-          // localStorage.setItem('account_id', response.data.account_id)
-          // window.location.href = 'http://localhost:3000/dashboard'
-          axios
-            .post('http://localhost:3003/student/findStudentByAccountID', {
-              account_id: response.data.account_id
-            })
-            .then((response) => {
-              toast.success('Login successfully!!!')
-              localStorage.setItem('student_id', JSON.stringify(response.data.student_id))
-              localStorage.setItem('student', JSON.stringify(response.data.student))
-              // window.location.href = 'http://localhost:3000/dashboardwait'
-              toast.success('Login successfully!!!')
-              alert('Login successfully!!!')
-            })
-        }
-      })
+    try {
+      const res = await apiLogin(userCode, password, accountType, recaptchaToken)
+      if (res.status === 200) {
+        toast.success('Đăng nhập thành công')
+        setTimeout(() => {
+          // This code will be executed after 2 seconds
+          localStorage.setItem('account_id', res.data.account_id)
+          window.location.href = '/'
+        }, 1000)
+      }
+    } catch (error) {
+      toast.error('Đăng nhập thất bại')
+    }
   }
 
   return (
@@ -72,26 +45,12 @@ export default function Login() {
           <div className='pb-10'>
             <img src={logo} alt='cloud' />
           </div>
-
-          {/* <div className='grid grid-cols-2 bg-red-800'>
-            <div className='flex justify-center text-base items-center bg-[#fee2e2] text-dark '>
-              <label htmlFor=''>MSSV:</label>
-            </div>
-            <div>
-              <input onChange={(e) => setStudentCode(e.target.value)} name='studentCode' type='text' />
-            </div>
-          </div> */}
           <div className='grid grid-cols-10 bg-red-800'>
             <div className='flex justify-center text-base items-center bg-[#fee2e2] text-dark col-span-3'>
               <label htmlFor=''>MSSV:</label>
             </div>
             <div className='col-span-7'>
-              <input
-                className='w-full'
-                onChange={(e) => setStudentCode(e.target.value)}
-                name='studentCode'
-                type='text'
-              />
+              <input className='w-full' onChange={(e) => setuserCode(e.target.value)} name='userCode' type='text' />
             </div>
           </div>
           <div className='grid grid-cols-10 mt-2 bg-red-800'>
@@ -99,35 +58,15 @@ export default function Login() {
               <label htmlFor=''>Mật khẩu:</label>
             </div>
             <div className='col-span-7'>
-              <input
-                className='w-full'
-                onChange={(e) => setPassword(e.target.value)}
-                type='password'
-                // type={showPassword ? 'text' : 'password'}
-              />
-              {/* <span className='span-eye' onClick={togglePasswordVisibility}>
-                {showPassword ? <FaEyeSlash /> : <FaEye />} {/* Sử dụng icon con mắt */}
-              {/* </span> */}
+              <input className='w-full' onChange={(e) => setPassword(e.target.value)} type='password' />
             </div>
           </div>
-          <div className='grid grid-cols-10 mt-2 flex justify-center items-center'>
-            <div className='col-span-7'>
-              {/* <div className='col-start-3 col-end-13'> */}
-              <ReCAPTCHA sitekey='6LfgJcYpAAAAAGUFb9AfiadfSEHo69CLj_ETYu8q' onChange={handleRecaptcha} />
-            </div>
+          <div className='flex justify-start w-full pt-2'>
+            <ReCAPTCHA sitekey='6LfgJcYpAAAAAGUFb9AfiadfSEHo69CLj_ETYu8q' onChange={handleRecaptcha} />
           </div>
 
           <div className='grid grid-cols-1 mt-2 bg-blue-600 text-white font-bold p-2 cursor-pointer'>
-            {/* <input onClick={handleStudentLogin} className='cursor-pointer' type='button' value={'Đăng nhập'} /> */}
-            <input
-              type='submit'
-              value={'Đăng nhập'}
-              // className=''
-              // className='g-recaptcha cursor-pointer'
-              // data-sitekey='6Lc_TcUpAAAAACarNssYe65_5t0BomOkk_bJ70k1'
-              // data-callback='onSubmit'
-              // data-action='submit'
-            />
+            <input type='submit' value={'Đăng nhập'} />
           </div>
         </form>
       </dir>

@@ -1,3 +1,4 @@
+import Account from '../models/Account.js'
 import Student from '../models/Student.js'
 import Majoir from '../models/Major.js'
 
@@ -19,7 +20,6 @@ class StudentController {
       console.log('Lấy student từ account thành công ')
       res.status(200).json({
         message: 'Login successfully!!!',
-        student_id: student._id,
         student: student,
         majorName: major.majorName,
       })

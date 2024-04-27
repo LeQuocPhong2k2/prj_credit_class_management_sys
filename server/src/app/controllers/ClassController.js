@@ -25,7 +25,7 @@ class ClassController {
     }
   }
 
-  // create a new class
+  // create a new class / role admin
   async createClass(req, res) {
     const { className, course_id, maxStudents } = req.body
     // lấy danh sách teacher

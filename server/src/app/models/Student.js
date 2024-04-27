@@ -6,7 +6,7 @@ const StudentSchema = new Schema({
   userName: String,
   email: String,
   dateOfBirth: Date,
-  gender: String,
+  gender: Boolean,
   department: { type: Schema.Types.ObjectId, ref: 'Department' },
   major: { type: Schema.Types.ObjectId, ref: 'Major' },
   registeredCourses: [{ type: Schema.Types.ObjectId, ref: 'Course' }],
