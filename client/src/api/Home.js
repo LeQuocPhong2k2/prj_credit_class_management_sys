@@ -1,10 +1,9 @@
 import axios from 'axios'
-
-async function getInforSv(userCode) {
+async function apiInforSv(userCode) {
   const res = await axios.post(
     'http://localhost:3003/student/findStudentByAccountID',
     {
-      userCode: userCode
+      account_id: userCode
     },
     {
       headers: {
@@ -12,7 +11,8 @@ async function getInforSv(userCode) {
       }
     }
   )
+
   return res
 }
 
-export default getInforSv
+export default apiInforSv
