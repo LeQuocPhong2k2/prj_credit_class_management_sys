@@ -47,6 +47,10 @@ const Home = () => {
     window.location.href = '/login'
   }
 
+  function handleDirectRegisterCourse() {
+    window.location.href = '/register-course'
+  }
+
   if (loading) {
     return (
       <div className='flex justify-center items-center h-screen'>
@@ -190,7 +194,9 @@ const Home = () => {
           <div className='flex items-center justify-center text-3xl'>
             <FiLayers />
           </div>
-          <span className='text-sm'>Đăng ký học phần</span>
+          <span className='text-sm hover:text-gray-500' onClick={handleDirectRegisterCourse}>
+            Đăng ký học phần
+          </span>
         </div>
         <div className='grid grid-rows-2 shadow shadow-gray-500 rounded-md mr-4 text-link cursor-pointer'>
           <div className='flex items-center justify-center text-3xl'>
@@ -223,8 +229,20 @@ const Home = () => {
           <span className='text-sm'>Nhắc nhở</span>
         </div>
       </div>
-      <div className='grid grid-cols-2 mt-4'>
-        <div className='grid grid-rows-10 justify-start h-64'>
+      <div className='grid grid-flow-col mt-4'>
+        <div className='grid grid-rows-10 shadow shadow-gray-500 rounded-md p-4 mr-4 h-64'>
+          <div className='grid grid-cols-2'>
+            <div className='row-span-1 font-bold text-left'>
+              <h1>Kết quả học tập</h1>
+            </div>
+            <div className='flex justify-end'>
+              <select name='' id='' className='h-9'>
+                <option value=''>HK2 2023-2024</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div className='grid grid-rows-10 shadow shadow-gray-500 rounded-md p-4 mr-4 h-64'>
           <div className='row-span-1 font-bold text-left'>
             <h1>Tiến độ học tập</h1>
           </div>
@@ -235,12 +253,39 @@ const Home = () => {
             <h1>{user.student.totalCredits + '/' + 156}</h1>
           </div>
         </div>
-        <div className='grid grid-rows-10'>
-          <div className='grid grid-cols-2'>
-            <h1>Lớp học phần</h1>
-            <select name='' id=''>
-              <option value=''>HK2 2023-2024</option>
-            </select>
+        <div className='grid grid-rows-10 shadow shadow-gray-500 rounded-md p-4 h-64'>
+          <div className='row-span-2 grid grid-cols-2 text-left border-b-2'>
+            <div className='row-span-1 font-bold text-left'>
+              <h1>Lớp học phần</h1>
+            </div>
+            <div className='h-fit flex justify-end w-full'>
+              <select name='' id='' className='h-9'>
+                <option value=''>HK2 2023-2024</option>
+              </select>
+            </div>
+          </div>
+          <div className='row-span-2 grid grid-cols-2 text-left border-b-2 items-center text-sm'>
+            <span>Môn học/học phần</span>
+            <div className='flex justify-end w-full'>
+              <span>Số tín chỉ</span>
+            </div>
+          </div>
+          <div>
+            <ul>
+              <li className='grid grid-cols-5'>
+                <div className='col-span-4 grid grid-flow-row'>
+                  <div className='flex justify-start text-link'>
+                    <span>4758269</span>
+                  </div>
+                  <div className='flex justify-start'>
+                    <span>Cơ sở dữ liệu</span>
+                  </div>
+                </div>
+                <div className='flex justify-end items-center'>
+                  <span>4</span>
+                </div>
+              </li>
+            </ul>
           </div>
         </div>
       </div>

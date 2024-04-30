@@ -5,6 +5,9 @@
 body {
   font-family: Tahoma !important;
 }
+.border-1px {
+  border: 1px solid #e0e0e0;
+}
 
 .text-color-wrapper {
   color: #667580;
