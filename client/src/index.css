@@ -1,3 +1,28 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+  font-family: Tahoma !important;
+}
+.border-1px {
+  border: 1px solid #e0e0e0;
+}
+
+.text-color-wrapper {
+  color: #667580;
+}
+
+.text-link {
+  color: #4da1e8;
+}
+
+.bg-lich-thi {
+  background-color: #fff2d4;
+  color: #ff9205;
+}
+
+.bg-lich-hoc {
+  background-color: #e0fbff;
+  color: #4da1e8;
+}

@@ -8,4 +8,4 @@ const RegistrationSchema = new Schema({
   emailSent: Boolean,
 })
 
-module.exports = mongoose.model('Registration', RegistrationSchema)
+export default mongoose.model('Registration', RegistrationSchema)

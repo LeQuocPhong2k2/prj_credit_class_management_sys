@@ -6,11 +6,12 @@ const StudentSchema = new Schema({
   userName: String,
   email: String,
   dateOfBirth: Date,
-  gender: Boolean,
+  gender: String,
   department: { type: Schema.Types.ObjectId, ref: 'Department' },
   major: { type: Schema.Types.ObjectId, ref: 'Major' },
   registeredCourses: [{ type: Schema.Types.ObjectId, ref: 'Course' }],
   totalCredits: Number,
   GPA: Number,
+  definiteClass: String,
 })
 export default mongoose.model('Student', StudentSchema)
