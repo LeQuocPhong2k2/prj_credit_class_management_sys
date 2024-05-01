@@ -2,31 +2,19 @@ import React from 'react'
 import logo from '../assets/logo.png'
 import avatar from '../assets/avata-sv.jpg'
 import { useEffect, useState } from 'react'
-import { Toaster, toast } from 'react-hot-toast'
 import 'react-toastify/dist/ReactToastify.css'
 import { apiInforSv } from '../api/Home'
 
 const Header = () => {
-  const [studentName, setStudentName] = useState('')
-  const student = localStorage.getItem('student')
-  const [dataLoaded, setDataLoaded] = useState(false)
+  const [user, setUser] = useState(null)
 
   useEffect(() => {
-    async function fetchData() {
-      await apiInforSv(localStorage.getItem('account_id'))
-      setDataLoaded(true)
+    const fetchData = async () => {
+      const res = await apiInforSv(localStorage.getItem('account_id'))
+      setUser(res.data)
     }
-
     fetchData()
   }, [])
-
-  useEffect(() => {
-    if (student) {
-      if (dataLoaded) {
-        setStudentName(JSON.parse(student).userName)
-      }
-    }
-  }, [dataLoaded])
 
   return (
     <header>
@@ -47,7 +35,7 @@ const Header = () => {
           <div>
             <img className='h-10 w-10 rounded-full' src={avatar} alt='cloud' />
           </div>
-          <span>{studentName}</span>
+          <span>{user && user.student && user.student.userName}</span>
         </div>
       </div>
     </header>

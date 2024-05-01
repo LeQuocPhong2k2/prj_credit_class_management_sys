@@ -8,7 +8,12 @@ import Header from './components/Header'
 const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
   <React.StrictMode>
-    {window.location.pathname !== '/login' && window.location.pathname !== '/not-found' && <Header />}
+    {window.location.pathname === '' ||
+    window.location.pathname === '/' ||
+    window.location.pathname === '/home' ||
+    window.location.pathname === '/register-course' ? (
+      <Header />
+    ) : null}
     <App />
   </React.StrictMode>
 )

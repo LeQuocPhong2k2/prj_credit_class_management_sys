@@ -11,9 +11,10 @@ async function apiInforSv(userCode) {
       }
     }
   )
-  if (res.data.student) {
-    localStorage.setItem('student', JSON.stringify(res.data.student))
-  }
+  //COMMENT: API getdata không xử lý gì ở đây cả, chỉ trả về dữ liệu
+  // if (res.data.student) {
+  //   localStorage.setItem('student', JSON.stringify(res.data.student))
+  // }
 
   return res
 }

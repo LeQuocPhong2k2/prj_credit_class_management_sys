@@ -12,22 +12,16 @@ import { PiBagSimple } from 'react-icons/pi'
 import { apiInforSv, apiInforCourseByStudent } from '../../api/Home'
 import moment from 'moment-timezone'
 import ChartPie from '@garvae/react-pie-chart'
-import { Toaster, toast } from 'react-hot-toast'
+import { Toaster } from 'react-hot-toast'
 import 'react-toastify/dist/ReactToastify.css'
 
 const Home = () => {
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState(null)
-  const [list_courseId, setListCourseIds] = useState([])
+  const [list_course, setListCourse] = useState(null)
 
-  const student = JSON.parse(localStorage.getItem('student'))
-  const registeredCourses = JSON.stringify(student?.registeredCourses)
-  const [list_course, setListCourse] = useState([])
-  const [dataLoaded, setDataLoaded] = useState(false)
-
-  // hàm useEffect kiểm tra các local storage student và account_id đã có chưa
   useEffect(() => {
-    if (!localStorage.getItem('student') || !localStorage.getItem('account_id')) {
+    if (!localStorage.getItem('account_id')) {
       window.location.href = '/login'
     }
   }, [])
@@ -37,25 +31,12 @@ const Home = () => {
     const fetchData = async () => {
       const res = await apiInforSv(localStorage.getItem('account_id'))
       setUser(res.data)
+      const resCourse = await apiInforCourseByStudent(res.data.student.registeredCourses)
+      setListCourse(resCourse.data.courses)
       setLoading(false)
     }
     fetchData()
-    setListCourseIds(registeredCourses)
   }, [])
-
-  // viết 1 use Effect lấy danh sách course theo list_courseId
-  useEffect(() => {
-    const fetchData = async () => {
-      console.log(registeredCourses)
-      const res = await apiInforCourseByStudent(registeredCourses)
-      if (res.data.courses) {
-        setListCourse(res.data.courses)
-        setDataLoaded(true)
-      }
-    }
-    fetchData()
-    // alert(list_course)
-  }, [list_courseId])
 
   const DATA = [
     {
