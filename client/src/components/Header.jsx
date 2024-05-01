@@ -1,8 +1,33 @@
 import React from 'react'
 import logo from '../assets/logo.png'
 import avatar from '../assets/avata-sv.jpg'
+import { useEffect, useState } from 'react'
+import { Toaster, toast } from 'react-hot-toast'
+import 'react-toastify/dist/ReactToastify.css'
+import { apiInforSv } from '../api/Home'
 
 const Header = () => {
+  const [studentName, setStudentName] = useState('')
+  const student = localStorage.getItem('student')
+  const [dataLoaded, setDataLoaded] = useState(false)
+
+  useEffect(() => {
+    async function fetchData() {
+      await apiInforSv(localStorage.getItem('account_id'))
+      setDataLoaded(true)
+    }
+
+    fetchData()
+  }, [])
+
+  useEffect(() => {
+    if (student) {
+      if (dataLoaded) {
+        setStudentName(JSON.parse(student).userName)
+      }
+    }
+  }, [dataLoaded])
+
   return (
     <header>
       <div className='grid grid-cols-4 items-center h-16 shadow shadow-gray-500 rounded-md pl-8'>
@@ -22,7 +47,7 @@ const Header = () => {
           <div>
             <img className='h-10 w-10 rounded-full' src={avatar} alt='cloud' />
           </div>
-          <span>Lê Quốc Phòng</span>
+          <span>{studentName}</span>
         </div>
       </div>
     </header>
