@@ -53,16 +53,22 @@ const Home = () => {
     }
   ]
 
-  const ref = useRef(null)
   if (!localStorage.getItem('account_id')) {
     window.location.href = '/login'
   }
 
+  const ref = useRef(null)
   function handleDirectRegisterCourse() {
     window.location.href = '/register-course'
   }
-  if (!list_course) {
-    return
+
+  const enrollmentYear = 2020
+  const currentYear = new Date().getFullYear()
+  const semesters = []
+
+  for (let year = enrollmentYear; year <= currentYear; year++) {
+    semesters.push(`HK1 ${year}-${year + 1}`)
+    semesters.push(`HK2 ${year}-${year + 1}`)
   }
 
   if (loading) {
@@ -125,7 +131,7 @@ const Home = () => {
                 <li className='text-left p-2'>
                   <span>Ngày sinh:</span>
                   <span className='font-bold'>
-                    {moment(user && user.dateOfBirth && user.student.dateOfBirth).format('YYYY-MM-DD')}
+                    {moment(user && user.student && user.student.dateOfBirth).format('YYYY-MM-DD')}
                   </span>
                 </li>
                 <li className='text-left p-2'>
@@ -275,7 +281,11 @@ const Home = () => {
             </div>
             <div className='h-fit flex justify-end w-full'>
               <select name='' id='' className='h-9'>
-                <option value=''>HK2 2023-2024</option>
+                {semesters.map((semester, index) => (
+                  <option key={index} value={semester}>
+                    {semester}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -288,7 +298,7 @@ const Home = () => {
           <div>
             <ul>
               {list_course.map((course, index) => (
-                <li className='grid grid-cols-5'>
+                <li key={index} className='grid grid-cols-5'>
                   <div className='col-span-4 grid grid-flow-row'>
                     <div className='flex justify-start text-link'>
                       <span>{course.courseCode}</span>
