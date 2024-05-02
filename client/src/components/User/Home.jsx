@@ -258,7 +258,11 @@ const Home = () => {
             </div>
             <div className='flex justify-end'>
               <select name='' id='' className='h-9'>
-                <option value=''>HK2 2023-2024</option>
+                {semesters.map((semester, index) => (
+                  <option key={index} value={semester}>
+                    {semester}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
