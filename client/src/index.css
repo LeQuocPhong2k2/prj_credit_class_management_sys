@@ -8,6 +8,13 @@ body {
 .border-1px {
   border: 1px solid #e0e0e0;
 }
+.bg-table-header {
+  background-color: #0c6fbe;
+}
+
+.text-color-cuorse {
+  color: #667580;
+}
 
 .text-color-wrapper {
   color: #667580;
@@ -25,4 +32,10 @@ body {
 .bg-lich-hoc {
   background-color: #e0fbff;
   color: #4da1e8;
+}
+table,
+th,
+td {
+  border: 1px solid #ddd;
+  border-collapse: collapse;
 }

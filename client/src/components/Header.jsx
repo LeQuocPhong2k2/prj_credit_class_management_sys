@@ -1,8 +1,21 @@
 import React from 'react'
 import logo from '../assets/logo.png'
 import avatar from '../assets/avata-sv.jpg'
+import { useEffect, useState } from 'react'
+import 'react-toastify/dist/ReactToastify.css'
+import { apiInforSv } from '../api/Home'
 
 const Header = () => {
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await apiInforSv(localStorage.getItem('account_id'))
+      setUser(res.data)
+    }
+    fetchData()
+  }, [])
+
   return (
     <header>
       <div className='grid grid-cols-4 items-center h-16 shadow shadow-gray-500 rounded-md pl-8'>
@@ -22,7 +35,7 @@ const Header = () => {
           <div>
             <img className='h-10 w-10 rounded-full' src={avatar} alt='cloud' />
           </div>
-          <span>Lê Quốc Phòng</span>
+          <span>{user && user.student && user.student.userName}</span>
         </div>
       </div>
     </header>

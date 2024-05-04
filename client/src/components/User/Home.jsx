@@ -9,19 +9,30 @@ import { FaFileLines } from 'react-icons/fa6'
 import { FiLayers } from 'react-icons/fi'
 import { TfiBarChart } from 'react-icons/tfi'
 import { PiBagSimple } from 'react-icons/pi'
-import apiInforSv from '../../api/Home'
+import { apiInforSv, apiInforCourseByStudent } from '../../api/Home'
 import moment from 'moment-timezone'
 import ChartPie from '@garvae/react-pie-chart'
+import { Toaster } from 'react-hot-toast'
+import 'react-toastify/dist/ReactToastify.css'
 
 const Home = () => {
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState(null)
+  const [list_course, setListCourse] = useState(null)
+
+  useEffect(() => {
+    if (!localStorage.getItem('account_id')) {
+      window.location.href = '/login'
+    }
+  }, [])
 
   useEffect(() => {
     document.title = 'Trang chủ'
     const fetchData = async () => {
       const res = await apiInforSv(localStorage.getItem('account_id'))
       setUser(res.data)
+      const resCourse = await apiInforCourseByStudent(res.data.student.registeredCourses)
+      setListCourse(resCourse.data.courses)
       setLoading(false)
     }
     fetchData()
@@ -42,18 +53,28 @@ const Home = () => {
     }
   ]
 
-  const ref = useRef(null)
   if (!localStorage.getItem('account_id')) {
     window.location.href = '/login'
   }
 
+  const ref = useRef(null)
   function handleDirectRegisterCourse() {
     window.location.href = '/register-course'
+  }
+
+  const enrollmentYear = 2020
+  const currentYear = new Date().getFullYear()
+  const semesters = []
+
+  for (let year = enrollmentYear; year <= currentYear; year++) {
+    semesters.push(`HK1 ${year}-${year + 1}`)
+    semesters.push(`HK2 ${year}-${year + 1}`)
   }
 
   if (loading) {
     return (
       <div className='flex justify-center items-center h-screen'>
+        <Toaster toastOptions={{ duration: 2200 }} />
         <div class='flex items-center justify-center w-56 h-56'>
           <div role='status'>
             <svg
@@ -110,7 +131,7 @@ const Home = () => {
                 <li className='text-left p-2'>
                   <span>Ngày sinh:</span>
                   <span className='font-bold'>
-                    {moment(user && user.dateOfBirth && user.student.dateOfBirth).format('YYYY-MM-DD')}
+                    {moment(user && user.student && user.student.dateOfBirth).format('YYYY-MM-DD')}
                   </span>
                 </li>
                 <li className='text-left p-2'>
@@ -237,7 +258,11 @@ const Home = () => {
             </div>
             <div className='flex justify-end'>
               <select name='' id='' className='h-9'>
-                <option value=''>HK2 2023-2024</option>
+                {semesters.map((semester, index) => (
+                  <option key={index} value={semester}>
+                    {semester}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -260,7 +285,11 @@ const Home = () => {
             </div>
             <div className='h-fit flex justify-end w-full'>
               <select name='' id='' className='h-9'>
-                <option value=''>HK2 2023-2024</option>
+                {semesters.map((semester, index) => (
+                  <option key={index} value={semester}>
+                    {semester}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -272,19 +301,21 @@ const Home = () => {
           </div>
           <div>
             <ul>
-              <li className='grid grid-cols-5'>
-                <div className='col-span-4 grid grid-flow-row'>
-                  <div className='flex justify-start text-link'>
-                    <span>4758269</span>
+              {list_course.map((course, index) => (
+                <li key={index} className='grid grid-cols-5'>
+                  <div className='col-span-4 grid grid-flow-row'>
+                    <div className='flex justify-start text-link'>
+                      <span>{course.courseCode}</span>
+                    </div>
+                    <div className='flex justify-start'>
+                      <span>{course.courseName}</span>
+                    </div>
                   </div>
-                  <div className='flex justify-start'>
-                    <span>Cơ sở dữ liệu</span>
+                  <div className='flex justify-end items-center'>
+                    <span>{course.credits}</span>
                   </div>
-                </div>
-                <div className='flex justify-end items-center'>
-                  <span>4</span>
-                </div>
-              </li>
+                </li>
+              ))}
             </ul>
           </div>
         </div>

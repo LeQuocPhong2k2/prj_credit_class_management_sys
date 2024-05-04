@@ -11,8 +11,27 @@ async function apiInforSv(userCode) {
       }
     }
   )
+  //COMMENT: API getdata không xử lý gì ở đây cả, chỉ trả về dữ liệu
+  // if (res.data.student) {
+  //   localStorage.setItem('student', JSON.stringify(res.data.student))
+  // }
 
   return res
 }
 
-export default apiInforSv
+async function apiInforCourseByStudent(registeredCourses) {
+  const res = await axios.post(
+    'http://localhost:3003/course/findCoursesByCourseIDs',
+    {
+      courseIDs: registeredCourses
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+  )
+  return res
+}
+
+export { apiInforSv, apiInforCourseByStudent }
