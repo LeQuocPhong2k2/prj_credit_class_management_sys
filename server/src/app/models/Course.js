@@ -8,5 +8,6 @@ const CourseSchema = new Schema({
   prerequisites: [{ type: Schema.Types.ObjectId, ref: 'Course' }],
   elective: Boolean,
   hasPractical: Boolean,
+  courseFee: String,
 })
 export default mongoose.model('Course', CourseSchema)

@@ -6,6 +6,7 @@ const RegistrationSchema = new Schema({
   status: String,
   timestamp: Date,
   emailSent: Boolean,
+  paymentStatus: Boolean,
 })
 
 export default mongoose.model('Registration', RegistrationSchema)

@@ -7,4 +7,8 @@ router.post(
   '/findRegistrationByRegistrationID',
   RegistrationController.findRegistrationByRegistrationID
 )
+router.post(
+  '/findRegistrationByStudentID',
+  RegistrationController.findRegistrationByStudentID
+)
 export default router

@@ -13,5 +13,7 @@ const StudentSchema = new Schema({
   totalCredits: Number,
   GPA: Number,
   definiteClass: String,
+  semesterRegistration: String,
+  registrationType: String,
 })
 export default mongoose.model('Student', StudentSchema)
