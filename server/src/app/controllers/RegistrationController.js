@@ -35,7 +35,14 @@ class RegistrationController {
     const className = lophoc.className.split(' - ')[0]
     const courseFee = course.courseFee
     let practiceClass
-    if (lophoc.classDetails.length >= 2) {
+    // if (lophoc.classDetails.length >= 2) {
+    //   practiceClass = 1
+    // } else {
+    //   practiceClass = ''
+    // }
+    // nếu course.hasPractical = true thì practiceClass = 1, ngược lại thì practiceClass = ''
+
+    if (course.hasPractical === true) {
       practiceClass = 1
     } else {
       practiceClass = ''

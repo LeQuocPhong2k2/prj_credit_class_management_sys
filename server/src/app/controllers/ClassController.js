@@ -120,5 +120,20 @@ class ClassController {
       res.status(200).json({ message: 'class not found!!!' })
     }
   }
+  // api hiện thông tin lớp học của course
+  async findClassesByCourseID(req, res) {
+    const courseID = req.body.courseID
+    const lophoc = await Class.find({ course: courseID })
+    if (lophoc) {
+      console.log('Lấy class thành công')
+      res.status(200).json({
+        message: 'Get class successfully!!!',
+        classes: lophoc,
+      })
+    } else {
+      console.log('Không tìm thấy class')
+      res.status(200).json({ message: 'class not found!!!' })
+    }
+  }
 }
 export default new ClassController()
