@@ -1,35 +1,35 @@
-import Account from '../models/Account.js'
-import Student from '../models/Student.js'
+import Account from "../models/Account.js";
+import Student from "../models/Student.js";
+import jwt from "jsonwebtoken";
 
 class AccountController {
   async login(req, res) {
-    try {
-      const { userCode, password, accountType } = req.body
-      const account = await Account.findOne({
-        userCode: userCode,
+    const { userCode, password, accountType } = req.body;
+    const account = await Account.findOne({
+      userCode: userCode,
+      password: password,
+    })
+      .then((account) => {
+        if (account) {
+          const token = jwt.sign(
+            {
+              userCode: account.userCode,
+              accountType: account.accountType,
+            },
+            "mk"
+          );
+          return res.status(200).json({
+            message: "Login successful",
+            account_id: account._id,
+            token: token,
+          });
+        } else {
+          return res.status(404).json({ message: "Account not found" });
+        }
       })
-
-      if (!account) {
-        return res.status(200).json({ message: 'Không tìm thấy tài khoản' })
-      }
-      if (
-        account.password !== password ||
-        account.accountType !== accountType
-      ) {
-        return res
-          .status(200)
-          .json({ message: 'Password or AccountType not match' })
-      }
-      const account_id = account._id
-      if (account && account.password === password) {
-        res.status(200).json({
-          message: 'Login successfully!!!',
-          account_id: account_id,
-        })
-      }
-    } catch (err) {
-      return res.status(500).json({ message: 'Server Error' })
-    }
+      .catch((err) => {
+        return res.status(500).json({ message: "Server Error" });
+      });
   }
 }
-export default new AccountController()
+export default new AccountController();
