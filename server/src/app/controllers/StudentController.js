@@ -21,7 +21,7 @@ class StudentController {
       });
     } else {
       console.log("Không tìm thấy student từ account");
-      res.status(200).json({ message: "student not found!!!" });
+      res.status(404).json({ message: "student not found!!!" });
     }
   }
 }
