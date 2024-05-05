@@ -9,6 +9,7 @@
     "@testing-library/react": "^13.0.0",
     "@testing-library/user-event": "^13.2.1",
     "axios": "^1.6.8",
+    "cookie-universal": "^2.2.2",
     "fa-react-icon": "^1.2.0",
     "flowbite": "^2.3.0",
     "flowbite-react": "^0.9.0",

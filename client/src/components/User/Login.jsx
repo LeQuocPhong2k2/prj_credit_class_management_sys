@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
 import ReCAPTCHA from 'react-google-recaptcha'
 import { Toaster, toast } from 'react-hot-toast'
+import Cookies from 'cookie-universal'
 import 'react-toastify/dist/ReactToastify.css'
 import logo from '../../assets/logo.png'
-// import apiLogin from '../../api/Login'
 import { login } from '../../api/Login'
 
 export default function Login() {
+  const cookies = new Cookies()
+
   const [userCode, setuserCode] = useState('')
   const [password, setPassword] = useState('')
 
@@ -28,7 +30,7 @@ export default function Login() {
       if (res.status === 200) {
         toast.success('Đăng nhập thành công')
         setTimeout(() => {
-          // This code will be executed after 2 seconds
+          cookies.set('accses_token', res.data.token, { path: '/', maxAge: 60 * 60 })
           localStorage.setItem('account_id', res.data.account_id)
           window.location.href = '/'
         }, 1000)

@@ -1,4 +1,8 @@
 import axios from 'axios'
+import Cookies from 'cookie-universal'
+
+const cookies = Cookies()
+
 async function apiInforSv(userCode) {
   const res = await axios.post(
     'http://localhost:3003/student/findStudentByAccountID',
@@ -7,14 +11,11 @@ async function apiInforSv(userCode) {
     },
     {
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + cookies.get('accses_token')
       }
     }
   )
-  //COMMENT: API getdata không xử lý gì ở đây cả, chỉ trả về dữ liệu
-  // if (res.data.student) {
-  //   localStorage.setItem('student', JSON.stringify(res.data.student))
-  // }
 
   return res
 }
@@ -27,7 +28,8 @@ async function apiInforCourseByStudent(registeredCourses) {
     },
     {
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + cookies.get('accses_token')
       }
     }
   )

@@ -14,17 +14,21 @@ import moment from 'moment-timezone'
 import ChartPie from '@garvae/react-pie-chart'
 import { Toaster } from 'react-hot-toast'
 import 'react-toastify/dist/ReactToastify.css'
+import Cookies from 'cookie-universal'
 
 const Home = () => {
+  const cookies = Cookies()
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState(null)
   const [list_course, setListCourse] = useState(null)
 
   useEffect(() => {
-    if (!localStorage.getItem('account_id')) {
+    const accses_token = cookies.get('accses_token')
+
+    if (!accses_token) {
       window.location.href = '/login'
     }
-  }, [])
+  }, [cookies])
 
   useEffect(() => {
     document.title = 'Trang chủ'
