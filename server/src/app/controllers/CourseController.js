@@ -48,7 +48,6 @@ class CourseController {
     }
   }
 
-  // api hiện các môn học mà sinh viên chưa đăng ký trong course
   async pendingCourses(req, res) {
     const studentID = req.body.studentID
 
@@ -67,29 +66,39 @@ class CourseController {
     const pendingCourses = allCourses.filter(
       (course) => !registeredCourseIds.includes(course._id.toString())
     )
+
     if (pendingCourses.length > 0) {
       console.log('Lấy pendingCourses thành công')
 
-      // kiểm tra néu mà elective = false thì nó là môn bắt buộc thì chữ sẽ là BB
-
       // Trích xuất chỉ các thuộc tính cần thiết từ mỗi khóa học
-      const simplifiedPendingCourses = pendingCourses.map((course) => {
-        // kiểm tra néu mà elective = false thì nó là môn bắt buộc thì chữ sẽ là BB
-        // ngược lại nếu elective = true thì chữ sẽ là Tự chọn
-        let electiveText
-        if (course.elective === false) {
-          electiveText = 'BB'
-        } else {
-          electiveText = 'Tự chọn'
-        }
+      const simplifiedPendingCourses = await Promise.all(
+        pendingCourses.map(async (course) => {
+          // kiểm tra néu mà elective = false thì nó là môn bắt buộc thì chữ sẽ là BB
+          // ngược lại nếu elective = true thì chữ sẽ là Tự chọn
+          let electiveText
+          if (course.elective === false) {
+            electiveText = 'BB'
+          } else {
+            electiveText = 'Tự chọn'
+          }
 
-        return {
-          courseName: course.courseName,
-          courseCode: course.courseCode,
-          credits: course.credits,
-          elective: electiveText,
-        }
-      })
+          // Lấy thông tin về các khóa học tiên quyết
+          const prerequisites = await Promise.all(
+            course.prerequisites.map(async (prerequisiteId) => {
+              const prerequisiteCourse = await Course.findById(prerequisiteId)
+              return prerequisiteCourse.courseCode.concat(' (b)')
+            })
+          )
+
+          return {
+            courseName: course.courseName,
+            courseCode: course.courseCode,
+            credits: course.credits,
+            elective: electiveText,
+            prerequisites: prerequisites,
+          }
+        })
+      )
 
       res.status(200).json({
         message: 'Lấy ra các môn học phần đang chờ đăng ký thành công!!!',

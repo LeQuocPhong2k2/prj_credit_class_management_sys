@@ -33,6 +33,7 @@ const TimeSchema = new Schema({
 const ClassSchema = new Schema(
   {
     className: String,
+    classCode: String,
     course: { type: Schema.Types.ObjectId, ref: 'Course' },
     teacher: [{ type: Schema.Types.ObjectId, ref: 'Teacher' }],
     maxStudents: Number,
