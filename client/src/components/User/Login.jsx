@@ -34,6 +34,8 @@ export default function Login() {
           localStorage.setItem('account_id', res.data.account_id)
           window.location.href = '/'
         }, 1000)
+      } else {
+        toast.error('Đăng nhập thất bại')
       }
     } catch (error) {
       toast.error('Đăng nhập thất bại')
