@@ -122,17 +122,36 @@ class ClassController {
   }
   // api hiện thông tin lớp học của course
   async findClassesByCourseID(req, res) {
-    const courseID = req.body.courseID
-    const lophoc = await Class.find({ course: courseID })
-    if (lophoc) {
-      console.log('Lấy class thành công')
-      res.status(200).json({
-        message: 'Get class successfully!!!',
-        classes: lophoc,
-      })
-    } else {
-      console.log('Không tìm thấy class')
-      res.status(200).json({ message: 'class not found!!!' })
+    try {
+      // // Get all classes for the course
+      // const classes = await Class.find({ course: req.body.courseId })
+
+      const courseID = req.body.courseID
+
+      const classes = await Class.find({ course: courseID })
+
+      let classInfo = []
+
+      // Iterate over each class
+      for (let cls of classes) {
+        // Find the course associated with the class
+        const course = await Course.findOne({ _id: cls.course })
+
+        // Push the class information to the array
+        classInfo.push({
+          classCode: cls.classCode,
+          courseName: course.courseName, // Use the course name instead of the class name
+          className: cls.className,
+          maxStudents: cls.maxStudents,
+          registered: cls.currentStudents.length,
+          status: cls.status,
+        })
+      }
+      res
+        .status(200)
+        .json({ message: 'Get classes successfully!!!', classInfo: classInfo })
+    } catch (err) {
+      res.status(500).json({ message: err.message })
     }
   }
 }

@@ -17,60 +17,96 @@ class RegistrationController {
       res.status(200).json({ message: 'registration not found!!!' })
     }
   }
-  // get Registration by studentID
+  // // get Registration by studentID
+  // async findRegistrationByStudentID(req, res) {
+  //   // console.log('findRegistrationByStudentID')
+  //   // res.status(200).json({ message: 'findRegistrationByStudentID' })
+  //   const studentID = req.body.studentID
+  //   const registration = await Registration.findOne({ student: studentID })
+  //   // từ course trong registration tìm ra coursecode tương ứng
+
+  //   if (registration) {
+  //     const course_id = registration.course
+  //     const course = await Course.findOne({ _id: course_id })
+  //     // từ course_id tìm ra class tương ứng
+  //     const lophoc = await Class.findOne({ course: course_id })
+  //     let practiceClass
+
+  //     // chỗ này đang kiểm tra nếu là môn thực hành thì  gán nhóm thực hành vào bằng 1 còn không thì để trống
+  //     if (course.hasPractical === true) {
+  //       practiceClass = 1
+  //     } else {
+  //       practiceClass = ''
+  //     }
+  //     const timestamp = new Date(registration.timestamp)
+  //     const formattedTimestamp = `${timestamp
+  //       .getDate()
+  //       .toString()
+  //       .padStart(2, '0')}/${(timestamp.getMonth() + 1)
+  //       .toString()
+  //       .padStart(2, '0')}/${timestamp.getFullYear()}`
+
+  //     // console.log(formattedTimestamp) // Logs "01/03/2024"
+  //     console.log('Lấy registration thành công')
+  //     res.status(200).json({
+  //       message: 'Get registration successfully!!!',
+  //       // registration: registration,
+  //       courseCode: course.courseCode,
+  //       courseName: course.courseName,
+  //       className: lophoc.className,
+  //       credits: course.credits,
+  //       practiceClass: practiceClass,
+  //       courseFee: course.courseFee,
+  //       paymentStatus: registration.paymentStatus,
+  //       timestamp: formattedTimestamp,
+  //     })
+  //   } else {
+  //     console.log('Không tìm thấy registration')
+  //     res.status(200).json({ message: 'Không tìm thấy registration' })
+  //   }
+  // }
   async findRegistrationByStudentID(req, res) {
-    // console.log('findRegistrationByStudentID')
-    // res.status(200).json({ message: 'findRegistrationByStudentID' })
     const studentID = req.body.studentID
-    const registration = await Registration.findOne({ student: studentID })
-    // từ course trong registration tìm ra coursecode tương ứng
-    const course_id = registration.course
-    const course = await Course.findOne({ _id: course_id })
-    const courseCode = course.courseCode
-    const courseName = course.courseName
-    const credits = course.credits
-    // từ course_id tìm ra class tương ứng
-    const lophoc = await Class.findOne({ course: course_id })
-    // console.log('lophoc: ' + lophoc)
-    const className = lophoc.className.split(' - ')[0]
-    const courseFee = course.courseFee
-    let practiceClass
-    // if (lophoc.classDetails.length >= 2) {
-    //   practiceClass = 1
-    // } else {
-    //   practiceClass = ''
-    // }
-    // nếu course.hasPractical = true thì practiceClass = 1, ngược lại thì practiceClass = ''
+    const registrations = await Registration.find({ student: studentID })
 
-    if (course.hasPractical === true) {
-      practiceClass = 1
-    } else {
-      practiceClass = ''
-    }
-    const paymentStatus = registration.paymentStatus
-    const timestamp = new Date(registration.timestamp)
-    const formattedTimestamp = `${timestamp
-      .getDate()
-      .toString()
-      .padStart(2, '0')}/${(timestamp.getMonth() + 1)
-      .toString()
-      .padStart(2, '0')}/${timestamp.getFullYear()}`
+    if (registrations.length > 0) {
+      let registrationInfo = []
 
-    console.log(formattedTimestamp) // Logs "01/03/2024"
+      for (let registration of registrations) {
+        const course_id = registration.course
+        const course = await Course.findOne({ _id: course_id })
+        const lophoc = await Class.findOne({ course: course_id })
 
-    if (registration) {
-      console.log('Lấy registration thành công')
+        let practiceClass
+        if (course.hasPractical === true) {
+          practiceClass = 1
+        } else {
+          practiceClass = ''
+        }
+
+        const timestamp = new Date(registration.timestamp)
+        const formattedTimestamp = `${timestamp
+          .getDate()
+          .toString()
+          .padStart(2, '0')}/${(timestamp.getMonth() + 1)
+          .toString()
+          .padStart(2, '0')}/${timestamp.getFullYear()}`
+
+        registrationInfo.push({
+          courseCode: course.courseCode,
+          courseName: course.courseName,
+          className: lophoc.className,
+          credits: course.credits,
+          practiceClass: practiceClass,
+          courseFee: course.courseFee,
+          paymentStatus: registration.paymentStatus,
+          timestamp: formattedTimestamp,
+        })
+      }
+
       res.status(200).json({
         message: 'Get registration successfully!!!',
-        // registration: registration,
-        courseCode: courseCode,
-        courseName: courseName,
-        className: className,
-        credits: credits,
-        practiceClass: practiceClass,
-        courseFee: courseFee,
-        paymentStatus: paymentStatus,
-        timestamp: formattedTimestamp,
+        registrationInfo: registrationInfo,
       })
     } else {
       console.log('Không tìm thấy registration')
