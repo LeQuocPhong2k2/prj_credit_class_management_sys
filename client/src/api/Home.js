@@ -20,11 +20,11 @@ async function apiInforSv(userCode) {
   return res
 }
 
-async function apiInforCourseByStudent(registeredCourses) {
+async function apiClass(classID) {
   const res = await axios.post(
-    'http://localhost:3003/course/findCoursesByCourseIDs',
+    'http://localhost:3003/class/findClassByClassID',
     {
-      courseIDs: registeredCourses
+      classID: classID
     },
     {
       headers: {
@@ -36,4 +36,4 @@ async function apiInforCourseByStudent(registeredCourses) {
   return res
 }
 
-export { apiInforSv, apiInforCourseByStudent }
+export { apiInforSv, apiClass }

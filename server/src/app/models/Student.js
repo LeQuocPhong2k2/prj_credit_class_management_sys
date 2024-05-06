@@ -1,19 +1,24 @@
-import { mongoose } from 'mongoose'
-import { Schema } from 'mongoose'
+import { mongoose } from "mongoose";
+import { Schema } from "mongoose";
+
+const classDetailSchema = new Schema({
+  classCode: { type: Schema.Types.ObjectId, ref: "Class" },
+  dateRegister: String,
+  grank: String,
+  mark: String,
+  semester: String,
+  status: String,
+});
 
 const StudentSchema = new Schema({
-  account_id: { type: Schema.Types.ObjectId, ref: 'Account' },
   userName: String,
   email: String,
-  dateOfBirth: Date,
+  dateOfBirth: String,
   gender: String,
-  department: { type: Schema.Types.ObjectId, ref: 'Department' },
-  major: { type: Schema.Types.ObjectId, ref: 'Major' },
-  registeredCourses: [{ type: Schema.Types.ObjectId, ref: 'Course' }],
-  totalCredits: Number,
-  GPA: Number,
+  department: { type: Schema.Types.ObjectId, ref: "Department" },
+  major: { type: Schema.Types.ObjectId, ref: "Major" },
+  account_id: { type: Schema.Types.ObjectId, ref: "Account" },
   definiteClass: String,
-  semesterRegistration: String,
-  registrationType: String,
-})
-export default mongoose.model('Student', StudentSchema)
+  class: [classDetailSchema],
+});
+export default mongoose.model("Student", StudentSchema);

@@ -9,15 +9,9 @@ class StudentController {
     const student = await Student.findOne({ account_id: account_id });
 
     if (student) {
-      const major_id = student.major;
-      const major = await Majoir.findOne({ _id: major_id });
-      const account = await Account.findOne({ _id: account_id });
       res.status(200).json({
         message: "Login successfully!!!",
-        student_id: student._id,
         student: student,
-        majorName: major.majorName,
-        account: account,
       });
     } else {
       console.log("Không tìm thấy student từ account");

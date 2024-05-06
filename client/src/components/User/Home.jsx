@@ -9,7 +9,7 @@ import { FaFileLines } from 'react-icons/fa6'
 import { FiLayers } from 'react-icons/fi'
 import { TfiBarChart } from 'react-icons/tfi'
 import { PiBagSimple } from 'react-icons/pi'
-import { apiInforSv, apiInforCourseByStudent } from '../../api/Home'
+import { apiInforSv, apiClass } from '../../api/Home'
 import moment from 'moment-timezone'
 import ChartPie from '@garvae/react-pie-chart'
 import { Toaster } from 'react-hot-toast'
@@ -20,7 +20,7 @@ const Home = () => {
   const cookies = Cookies()
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState(null)
-  const [list_course, setListCourse] = useState(null)
+  const [data, setData] = useState([])
 
   useEffect(() => {
     const accses_token = cookies.get('accses_token')
@@ -35,8 +35,24 @@ const Home = () => {
     const fetchData = async () => {
       const res = await apiInforSv(localStorage.getItem('account_id'))
       setUser(res.data)
-      const resCourse = await apiInforCourseByStudent(res.data.student.registeredCourses)
-      setListCourse(resCourse.data.courses)
+      res.data.student.class.map((e) => {
+        return apiClass(e.classCode).then((res) => {
+          const newData = {
+            message: res.data.message,
+            class: res.data.class,
+            course: res.data.course
+          }
+          if (data) {
+            data.map((item) => {
+              console.log(item.class._id, newData.class._id)
+              if (item.class._id === newData.class._id) {
+                return
+              }
+            })
+          }
+          setData((data) => [...data, newData])
+        })
+      })
       setLoading(false)
     }
     fetchData()
@@ -122,7 +138,7 @@ const Home = () => {
               <ul className='text-sm'>
                 <li className='text-left p-2'>
                   <span>MSSV:</span>
-                  <span className='font-bold'>{user && user.account.userCode}</span>
+                  {/* <span className='font-bold'>{user && user.account.userCode}</span> */}
                 </li>
                 <li className='text-left p-2'>
                   <span>Họ tên:</span>
@@ -305,7 +321,22 @@ const Home = () => {
           </div>
           <div>
             <ul>
-              {list_course.map((course, index) => (
+              {data.map((item, index) => (
+                <li key={index} className='grid grid-cols-5'>
+                  <div className='col-span-4 grid grid-flow-row'>
+                    <div className='flex justify-start text-link'>
+                      <span>{item.class._id}</span>
+                    </div>
+                    <div className='flex justify-start'>
+                      <span>{item.course.courseName}</span>
+                    </div>
+                  </div>
+                  <div className='flex justify-end items-center'>
+                    <span>{item.course.credits}</span>
+                  </div>
+                </li>
+              ))}
+              {/* {list_course.map((course, index) => (
                 <li key={index} className='grid grid-cols-5'>
                   <div className='col-span-4 grid grid-flow-row'>
                     <div className='flex justify-start text-link'>
@@ -319,7 +350,7 @@ const Home = () => {
                     <span>{course.credits}</span>
                   </div>
                 </li>
-              ))}
+              ))} */}
             </ul>
           </div>
         </div>

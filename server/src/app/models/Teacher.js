@@ -1,10 +1,10 @@
-import { mongoose } from 'mongoose'
-import { Schema } from 'mongoose'
+import { mongoose } from "mongoose";
+import { Schema } from "mongoose";
 
 const TeacherSchema = new Schema({
   account_id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Account',
+    ref: "Account",
     required: true,
   },
   userName: {
@@ -25,15 +25,15 @@ const TeacherSchema = new Schema({
   },
   department: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Department',
+    ref: "Department",
     required: true,
   },
   courses: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Course',
+      ref: "Course",
     },
   ],
-})
+});
 
-export default mongoose.model('Teacher', TeacherSchema)
+export default mongoose.model("Teacher", TeacherSchema);
