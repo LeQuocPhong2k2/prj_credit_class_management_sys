@@ -1,6 +1,7 @@
 import Class from "../models/Class.js";
 import Course from "../models/Course.js";
 import moment from "moment-timezone";
+import Student from "../models/Student.js";
 class ClassController {
   async findClassByClassID(req, res) {
     const classID = req.body.classID;
@@ -22,6 +23,29 @@ class ClassController {
       .catch((err) => {
         res.status(200).json({ message: "class not found!!  " });
       });
+  }
+
+  async getClasCreditBySemester(req, res) {
+    const semester = req.body.semester;
+    const student_id = req.body.student_id;
+    let classDataBySemester = [];
+
+    try {
+      const classData = await Class.find({ semester: semester, currentStudents: student_id });
+
+      if (classData.length > 0) {
+        const promises = classData.map(async (e) => {
+          const course = await Course.findOne({ _id: e.course });
+          return { courseCode: course.courseCode, courseName: course.courseName, courseCredit: course.credits };
+        });
+        classDataBySemester = await Promise.all(promises);
+      }
+
+      res.status(200).json({ message: "Get class successfully!!!", class: classDataBySemester });
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({ message: "Error occurred while fetching data!" });
+    }
   }
 
   // create a new class

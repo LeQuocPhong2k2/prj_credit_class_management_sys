@@ -34,6 +34,7 @@ const ClassSchema = new Schema(
     course: { type: Schema.Types.ObjectId, ref: "Course" },
     //teacher: [{ type: Schema.Types.ObjectId, ref: 'Teacher' }],
     maxStudents: Number,
+    semester: String,
     currentStudents: [{ type: Schema.Types.ObjectId, ref: "Student" }],
     waitlist: [{ type: Schema.Types.ObjectId, ref: "Student" }],
     time: TimeSchema,

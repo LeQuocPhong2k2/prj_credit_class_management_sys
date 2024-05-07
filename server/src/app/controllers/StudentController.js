@@ -1,6 +1,8 @@
 import Student from "../models/Student.js";
 import Majoir from "../models/Major.js";
 import Account from "../models/Account.js";
+import Class from "../models/Class.js";
+import Course from "../models/Course.js";
 
 class StudentController {
   // trả về 1 student từ account_id
@@ -16,6 +18,38 @@ class StudentController {
     } else {
       console.log("Không tìm thấy student từ account");
       res.status(404).json({ message: "student not found!!!" });
+    }
+  }
+
+  async getCreditsByAccountID(req, res) {
+    const account_id = req.body.account_id;
+    let classDataBySemester = [];
+    let sumCredit = 0;
+
+    try {
+      const studentData = await Student.findOne({ account_id: account_id });
+      if (studentData) {
+        let promises = studentData.class.map(async (e) => {
+          if (e.status === "HOANTHANH") {
+            const classData = await Class.findOne({ _id: e.classCode });
+            if (classData) {
+              const course = await Course.findOne({ _id: classData.course });
+              return { courseCode: course.courseCode, courseName: course.courseName, courseCredit: course.credits };
+            }
+          }
+        });
+        classDataBySemester = await Promise.all(promises);
+        classDataBySemester.forEach((e) => {
+          if (e) {
+            sumCredit += e.courseCredit;
+          }
+        });
+      }
+
+      res.status(200).json({ message: "Get credit total successfully!!!", creditTotal: sumCredit });
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({ message: "Error occurred while fetching data!" });
     }
   }
 }

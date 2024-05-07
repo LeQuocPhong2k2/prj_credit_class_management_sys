@@ -20,4 +20,5 @@ const verifyToken = (req, res, next) => {
 import StudentController from "../app/controllers/StudentController.js";
 
 router.post("/findStudentByAccountID", verifyToken, StudentController.findStudentByAccountID);
+router.post("/getCreditsByAccountID", verifyToken, StudentController.getCreditsByAccountID);
 export default router;

@@ -9,7 +9,7 @@ import { FaFileLines } from 'react-icons/fa6'
 import { FiLayers } from 'react-icons/fi'
 import { TfiBarChart } from 'react-icons/tfi'
 import { PiBagSimple } from 'react-icons/pi'
-import { apiInforSv, apiClass } from '../../api/Home'
+import { apiInforSv, findClassCredirBySemester, getCreditsByAccountID } from '../../api/Home'
 import moment from 'moment-timezone'
 import ChartPie from '@garvae/react-pie-chart'
 import { Toaster } from 'react-hot-toast'
@@ -18,52 +18,65 @@ import Cookies from 'cookie-universal'
 
 const Home = () => {
   const cookies = Cookies()
-  const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState(null)
-  const [data, setData] = useState([])
+  const [user, setUser] = useState([])
+  const [dsClas, setDsClass] = useState([])
+  const [currenSemester, setCurrentSemester] = useState()
+  const [isLoading, setIsLoading] = useState(true)
+  const [creditTotal, setCreditTotal] = useState(0)
 
-  useEffect(() => {
-    const accses_token = cookies.get('accses_token')
-
-    if (!accses_token) {
-      window.location.href = '/login'
-    }
-  }, [cookies])
+  if (!cookies.get('accses_token')) {
+    window.location.href = '/login'
+  }
 
   useEffect(() => {
     document.title = 'Trang chủ'
     const fetchData = async () => {
-      const res = await apiInforSv(localStorage.getItem('account_id'))
-      setUser(res.data)
-      res.data.student.class.map((e) => {
-        return apiClass(e.classCode).then((res) => {
-          const newData = {
-            message: res.data.message,
-            class: res.data.class,
-            course: res.data.course
-          }
-          if (data) {
-            data.map((item) => {
-              console.log(item.class._id, newData.class._id)
-              if (item.class._id === newData.class._id) {
-                return
-              }
-            })
-          }
-          setData((data) => [...data, newData])
-        })
-      })
-      setLoading(false)
+      setIsLoading(true)
+      const resultStudent = await apiInforSv(localStorage.getItem('account_id'))
+      if (resultStudent.status !== 200) {
+        setIsLoading(true)
+        return
+      }
+      setUser(resultStudent.data)
+      const currentMonth = new Date().getMonth() + 1
+      const currentYearSemester =
+        currentMonth >= 1 && currentMonth <= 6
+          ? `HK2(${currentYear - 1}-${currentYear})`
+          : `HK1(${currentYear}-${currentYear + 1})`
+      setCurrentSemester(currentYearSemester)
+      const resultClassSemester = await findClassCredirBySemester(resultStudent.data.student._id, currenSemester)
+      if (resultClassSemester.status !== 200) {
+        setIsLoading(true)
+        return
+      }
+      const resultCredit = await getCreditsByAccountID(localStorage.getItem('account_id'))
+      if (resultCredit.status !== 200) {
+        setIsLoading(true)
+        return
+      }
+      setCreditTotal(resultCredit.data.creditTotal)
+      setIsLoading(false)
     }
     fetchData()
   }, [])
+
+  useEffect(() => {
+    setCurrentSemester(currenSemester)
+    const fetchData = async () => {
+      if (user && user.student && user.student._id) {
+        const resultClassSemester = await findClassCredirBySemester(user.student._id, currenSemester)
+        setDsClass(resultClassSemester.data.class)
+      }
+    }
+    fetchData()
+  }, [currenSemester, user])
 
   const DATA = [
     {
       color: '#e74949',
       order: 1,
       segmentId: '001',
-      value: user && user.student && user.student.totalCredits
+      value: user && user.student && creditTotal
     },
     {
       color: '#49bae7',
@@ -87,11 +100,18 @@ const Home = () => {
   const semesters = []
 
   for (let year = enrollmentYear; year <= currentYear; year++) {
-    semesters.push(`HK1 ${year}-${year + 1}`)
-    semesters.push(`HK2 ${year}-${year + 1}`)
+    semesters.push(`HK1(${year}-${year + 1})`)
+    semesters.push(`HK2(${year}-${year + 1})`)
   }
 
-  if (loading) {
+  //handle get học kỳ hiện tại
+  const currentMonth = new Date().getMonth() + 1
+  const currentYearSemester =
+    currentMonth >= 1 && currentMonth <= 6
+      ? `HK2(${currentYear - 1}-${currentYear})`
+      : `HK1(${currentYear}-${currentYear + 1})`
+
+  if (isLoading) {
     return (
       <div className='flex justify-center items-center h-screen'>
         <Toaster toastOptions={{ duration: 2200 }} />
@@ -138,7 +158,7 @@ const Home = () => {
               <ul className='text-sm'>
                 <li className='text-left p-2'>
                   <span>MSSV:</span>
-                  {/* <span className='font-bold'>{user && user.account.userCode}</span> */}
+                  <span className='font-bold'>{user && user.student && user.student.mssv}</span>
                 </li>
                 <li className='text-left p-2'>
                   <span>Họ tên:</span>
@@ -277,7 +297,7 @@ const Home = () => {
               <h1>Kết quả học tập</h1>
             </div>
             <div className='flex justify-end'>
-              <select name='' id='' className='h-9'>
+              <select name='' id='' className='h-9 text-sm'>
                 {semesters.map((semester, index) => (
                   <option key={index} value={semester}>
                     {semester}
@@ -292,10 +312,10 @@ const Home = () => {
             <h1>Tiến độ học tập</h1>
           </div>
           <div className='row-span-7 relative items-center flex justify-center' ref={ref}>
-            <ChartPie text={Math.round((user.student.totalCredits / 156) * 100) + '%'} data={DATA} parentRef={ref} />
+            <ChartPie text={Math.round((creditTotal / 156) * 100) + '%'} data={DATA} parentRef={ref} />
           </div>
           <div className='font-bold text-black'>
-            <h1>{user.student.totalCredits + '/' + 156}</h1>
+            <h1>{creditTotal + '/' + 156}</h1>
           </div>
         </div>
         <div className='grid grid-rows-10 shadow shadow-gray-500 rounded-md p-4 h-64'>
@@ -304,12 +324,23 @@ const Home = () => {
               <h1>Lớp học phần</h1>
             </div>
             <div className='h-fit flex justify-end w-full'>
-              <select name='' id='' className='h-9'>
-                {semesters.map((semester, index) => (
-                  <option key={index} value={semester}>
-                    {semester}
-                  </option>
-                ))}
+              <select
+                onChange={(e) => setCurrentSemester(e.target.value)}
+                name='semester'
+                id=''
+                className='h-9 text-sm'
+              >
+                {semesters.map((semester, index) =>
+                  currenSemester === semester ? (
+                    <option key={index} value={semester} selected>
+                      {semester}
+                    </option>
+                  ) : (
+                    <option key={index} value={semester}>
+                      {semester}
+                    </option>
+                  )
+                )}
               </select>
             </div>
           </div>
@@ -321,22 +352,7 @@ const Home = () => {
           </div>
           <div>
             <ul>
-              {data.map((item, index) => (
-                <li key={index} className='grid grid-cols-5'>
-                  <div className='col-span-4 grid grid-flow-row'>
-                    <div className='flex justify-start text-link'>
-                      <span>{item.class._id}</span>
-                    </div>
-                    <div className='flex justify-start'>
-                      <span>{item.course.courseName}</span>
-                    </div>
-                  </div>
-                  <div className='flex justify-end items-center'>
-                    <span>{item.course.credits}</span>
-                  </div>
-                </li>
-              ))}
-              {/* {list_course.map((course, index) => (
+              {dsClas.map((course, index) => (
                 <li key={index} className='grid grid-cols-5'>
                   <div className='col-span-4 grid grid-flow-row'>
                     <div className='flex justify-start text-link'>
@@ -347,10 +363,10 @@ const Home = () => {
                     </div>
                   </div>
                   <div className='flex justify-end items-center'>
-                    <span>{course.credits}</span>
+                    <span>{course.courseCredit}</span>
                   </div>
                 </li>
-              ))} */}
+              ))}
             </ul>
           </div>
         </div>

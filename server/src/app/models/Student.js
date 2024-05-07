@@ -6,7 +6,6 @@ const classDetailSchema = new Schema({
   dateRegister: String,
   grank: String,
   mark: String,
-  semester: String,
   status: String,
 });
 
@@ -15,6 +14,7 @@ const StudentSchema = new Schema({
   email: String,
   dateOfBirth: String,
   gender: String,
+  mssv: String,
   department: { type: Schema.Types.ObjectId, ref: "Department" },
   major: { type: Schema.Types.ObjectId, ref: "Major" },
   account_id: { type: Schema.Types.ObjectId, ref: "Account" },
