@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { Toaster } from 'react-hot-toast'
+import { getAllCourseOfMajor } from '../../api/RegisterCourse'
+import { apiInforSv } from '../../api/Home'
+import { IoCloseCircleSharp } from 'react-icons/io5'
 
 const RegisterCourse = () => {
-  const [course, setCourse] = useState({})
   const [courses, setCourses] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
 
   if (!localStorage.getItem('account_id')) {
     window.location.href = '/login'
@@ -14,33 +15,26 @@ const RegisterCourse = () => {
 
   useEffect(() => {
     document.title = 'Đăng ký học phần'
-    const fetchCourses = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get('/api/courses')
-        setCourses(response.data)
+        const res = await apiInforSv(localStorage.getItem('account_id'))
+        if (res.status !== 200) {
+          setLoading(true)
+          return
+        }
+        const resCourse = await getAllCourseOfMajor(res.data.student.major)
+        if (resCourse.status !== 200) {
+          setLoading(true)
+          return
+        }
+        setCourses(resCourse.data.courses)
         setLoading(false)
-      } catch (error) {
-        setError(error)
-        setLoading(false)
+      } catch (e) {
+        setLoading(true)
       }
     }
-
-    fetchCourses()
+    fetchData()
   }, [])
-
-  const handleChange = (e) => {
-    setCourse({ ...course, [e.target.name]: e.target.value })
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    try {
-      await axios.post('/api/register-course', course)
-      alert('Course registered successfully')
-    } catch (error) {
-      console.log(error)
-    }
-  }
 
   const enrollmentYear = 2020
   const currentYear = new Date().getFullYear()
@@ -129,18 +123,37 @@ const RegisterCourse = () => {
                 song hành (c)
               </td>
             </thead>
-            <tbody className='text-color-cuorse'>
-              <tr>
-                <td>
-                  <input type='radio' />
-                </td>
-                <td>1</td>
-                <td>INT1001</td>
-                <td>Giáo dục quốc phòng</td>
-                <td>2</td>
-                <td>BB</td>
-                <td></td>
-              </tr>
+            <tbody className='text-color-cuorse text-base'>
+              {courses.map((course, index) => (
+                <tr key={index}>
+                  <td>
+                    <input type='radio' name='a' />
+                  </td>
+                  <td>{index + 1}</td>
+                  <td>{course.courseCode}</td>
+                  <td className='text-left pl-4'>{course.courseName}</td>
+                  <td>{course.courseCredit}</td>
+                  <td>
+                    {course.elective ? (
+                      <div className='flex justify-center items-center text-red-500 text-xl'>
+                        <IoCloseCircleSharp />
+                      </div>
+                    ) : (
+                      <div className='flex justify-center items-center text-xl'>
+                        <input
+                          className='w-4 h-4 text-orange-500 rounded-full'
+                          type='checkbox'
+                          checked
+                          disabled
+                          name=''
+                          id=''
+                        />
+                      </div>
+                    )}
+                  </td>
+                  <td>{course.prerequisites.map((prerequisite, index) => prerequisite + ' ')}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
