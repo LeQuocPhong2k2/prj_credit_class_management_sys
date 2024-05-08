@@ -25,7 +25,7 @@ class ClassController {
       });
   }
 
-  async getClasCreditBySemester(req, res) {
+  async getClasCreditBySemesterAndCurrentSV(req, res) {
     const semester = req.body.semester;
     const student_id = req.body.student_id;
     let classDataBySemester = [];
@@ -42,6 +42,57 @@ class ClassController {
       }
 
       res.status(200).json({ message: "Get class successfully!!!", class: classDataBySemester });
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({ message: "Error occurred while fetching data!" });
+    }
+  }
+
+  async getClasCreditBySemesterAndCourse(req, res) {
+    const semester = req.body.semester;
+    const course_code = req.body.course_code;
+
+    try {
+      const classByCourse = await Class.aggregate([
+        {
+          $lookup: {
+            from: "courses",
+            localField: "course",
+            foreignField: "_id",
+            as: "course",
+          },
+        },
+        {
+          $unwind: "$course",
+        },
+        {
+          $match: {
+            semester: semester,
+            "course.courseCode": course_code,
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            className: 1,
+            classCode: 1,
+            maxStudents: 1,
+            currentStudents: 1,
+            waitlist: 1,
+            classDetails: 1,
+            semester: 1,
+            expectedClass: 1,
+            status: 1,
+            course: "$course",
+          },
+        },
+      ]);
+
+      if (classByCourse.length > 0) {
+        res.status(200).json({ message: "Get class successfully!!!", class: classByCourse });
+      } else {
+        res.status(200).json({ message: "ERR_404" });
+      }
     } catch (error) {
       console.error("Error:", error);
       res.status(500).json({ message: "Error occurred while fetching data!" });

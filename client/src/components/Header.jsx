@@ -11,7 +11,7 @@ const Header = () => {
   useEffect(() => {
     const fetchData = async () => {
       const res = await apiInforSv(localStorage.getItem('account_id'))
-      setUser(res.data)
+      setUser(res.data.student[0])
     }
     fetchData()
   }, [])
@@ -35,7 +35,7 @@ const Header = () => {
           <div>
             <img className='h-10 w-10 rounded-full' src={avatar} alt='cloud' />
           </div>
-          <span>{user && user.student && user.student.userName}</span>
+          <span>{user && user.userName}</span>
         </div>
       </div>
     </header>

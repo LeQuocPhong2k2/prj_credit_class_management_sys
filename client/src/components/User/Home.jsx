@@ -28,6 +28,18 @@ const Home = () => {
     window.location.href = '/login'
   }
 
+  function getCurrentYearSemester() {
+    const currentYear = new Date().getFullYear()
+    const currentMonth = new Date().getMonth() + 1
+
+    const currentYearSemester =
+      currentMonth >= 1 && currentMonth <= 6
+        ? `HK2(${currentYear - 1}-${currentYear})`
+        : `HK1(${currentYear}-${currentYear + 1})`
+
+    return currentYearSemester
+  }
+
   useEffect(() => {
     document.title = 'Trang chủ'
     const fetchData = async () => {
@@ -37,14 +49,10 @@ const Home = () => {
         setIsLoading(true)
         return
       }
-      setUser(resultStudent.data)
-      const currentMonth = new Date().getMonth() + 1
-      const currentYearSemester =
-        currentMonth >= 1 && currentMonth <= 6
-          ? `HK2(${currentYear - 1}-${currentYear})`
-          : `HK1(${currentYear}-${currentYear + 1})`
-      setCurrentSemester(currentYearSemester)
-      const resultClassSemester = await findClassCredirBySemester(resultStudent.data.student._id, currenSemester)
+      setUser(resultStudent.data.student[0])
+
+      setCurrentSemester(getCurrentYearSemester())
+      const resultClassSemester = await findClassCredirBySemester(resultStudent.data.student[0]._id, currenSemester)
       if (resultClassSemester.status !== 200) {
         setIsLoading(true)
         return
@@ -63,8 +71,8 @@ const Home = () => {
   useEffect(() => {
     setCurrentSemester(currenSemester)
     const fetchData = async () => {
-      if (user && user.student && user.student._id) {
-        const resultClassSemester = await findClassCredirBySemester(user.student._id, currenSemester)
+      if (user && user._id) {
+        const resultClassSemester = await findClassCredirBySemester(user._id, currenSemester)
         setDsClass(resultClassSemester.data.class)
       }
     }
@@ -76,7 +84,7 @@ const Home = () => {
       color: '#e74949',
       order: 1,
       segmentId: '001',
-      value: user && user.student && creditTotal
+      value: user && creditTotal
     },
     {
       color: '#49bae7',
@@ -103,13 +111,6 @@ const Home = () => {
     semesters.push(`HK1(${year}-${year + 1})`)
     semesters.push(`HK2(${year}-${year + 1})`)
   }
-
-  //handle get học kỳ hiện tại
-  const currentMonth = new Date().getMonth() + 1
-  const currentYearSemester =
-    currentMonth >= 1 && currentMonth <= 6
-      ? `HK2(${currentYear - 1}-${currentYear})`
-      : `HK1(${currentYear}-${currentYear + 1})`
 
   if (isLoading) {
     return (
@@ -158,21 +159,19 @@ const Home = () => {
               <ul className='text-sm'>
                 <li className='text-left p-2'>
                   <span>MSSV:</span>
-                  <span className='font-bold'>{user && user.student && user.student.mssv}</span>
+                  <span className='font-bold'>{user && user.mssv}</span>
                 </li>
                 <li className='text-left p-2'>
                   <span>Họ tên:</span>
-                  <span className='font-bold'>{user && user.student && user.student.userName}</span>
+                  <span className='font-bold'>{user && user.userName}</span>
                 </li>
                 <li className='text-left p-2'>
                   <span>Gioi tính:</span>
-                  <span className='font-bold'>{user && user.student && user.student.gender}</span>
+                  <span className='font-bold'>{user && user.gender}</span>
                 </li>
                 <li className='text-left p-2'>
                   <span>Ngày sinh:</span>
-                  <span className='font-bold'>
-                    {moment(user && user.student && user.student.dateOfBirth).format('YYYY-MM-DD')}
-                  </span>
+                  <span className='font-bold'>{moment(user && user.dateOfBirth).format('YYYY-MM-DD')}</span>
                 </li>
                 <li className='text-left p-2'>
                   <span>Nơi sinh:</span>
@@ -184,7 +183,7 @@ const Home = () => {
               <ul className='text-sm'>
                 <li className='text-left p-2'>
                   <span>Lớp học:</span>
-                  <span className='font-bold'>{user && user.student && user.student.definiteClass}</span>
+                  <span className='font-bold'>{user && user.definiteClass}</span>
                 </li>
                 <li className='text-left p-2'>
                   <span>Khóa học:</span>
@@ -200,7 +199,7 @@ const Home = () => {
                 </li>
                 <li className='text-left p-2'>
                   <span>Ngành:</span>
-                  <span className='font-bold'>{user && user.majorName}</span>
+                  <span className='font-bold'>{user && user.major.majorName}</span>
                 </li>
               </ul>
             </div>

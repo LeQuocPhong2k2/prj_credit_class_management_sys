@@ -3,17 +3,49 @@ import Majoir from "../models/Major.js";
 import Account from "../models/Account.js";
 import Class from "../models/Class.js";
 import Course from "../models/Course.js";
+import { ObjectId } from "mongodb";
 
 class StudentController {
-  // trả về 1 student từ account_id
   async findStudentByAccountID(req, res) {
     const account_id = req.body.account_id;
-    const student = await Student.findOne({ account_id: account_id });
+    const objAccount_id = new ObjectId(account_id);
+    const studentInfo = await Student.aggregate([
+      {
+        $match: {
+          account_id: objAccount_id,
+        },
+      },
+      {
+        $lookup: {
+          from: "majors",
+          localField: "major",
+          foreignField: "_id",
+          as: "major",
+        },
+      },
+      {
+        $unwind: "$major",
+      },
+      {
+        $project: {
+          _id: 1,
+          userName: 1,
+          mssv: 1,
+          email: 1,
+          dateOfBirth: 1,
+          gender: 1,
+          account_id: 1,
+          definiteClass: 1,
+          major: "$major",
+          class: 1,
+        },
+      },
+    ]);
 
-    if (student) {
+    if (studentInfo) {
       res.status(200).json({
         message: "Login successfully!!!",
-        student: student,
+        student: studentInfo,
       });
     } else {
       console.log("Không tìm thấy student từ account");

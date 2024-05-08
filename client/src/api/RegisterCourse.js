@@ -18,19 +18,22 @@ async function getAllCourseOfMajor(major_id) {
   )
   return res
 }
-async function getAllCourseOfMajor1(major_id) {
+
+async function getClassBySemesterAndCourse(semester, course_code) {
   const res = await axios.post(
-    'http://localhost:3003/course/getAllCourseOfMajor',
+    'http://localhost:3003/class/getClasCreditBySemesterAndCourse',
     {
-      major_id: major_id
+      semester: semester,
+      course_code: course_code
     },
     {
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + cookies.get('accses_token')
       }
     }
   )
   return res
 }
 
-export { getAllCourseOfMajor, getAllCourseOfMajor1 }
+export { getAllCourseOfMajor, getClassBySemesterAndCourse }

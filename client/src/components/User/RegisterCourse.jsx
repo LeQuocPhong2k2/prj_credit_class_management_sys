@@ -1,20 +1,47 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
-import { Toaster } from 'react-hot-toast'
-import { getAllCourseOfMajor } from '../../api/RegisterCourse'
+import { Toaster, toast } from 'react-hot-toast'
+import 'react-toastify/dist/ReactToastify.css'
+import { getAllCourseOfMajor, getClassBySemesterAndCourse } from '../../api/RegisterCourse'
 import { apiInforSv } from '../../api/Home'
 import { IoCloseCircleSharp } from 'react-icons/io5'
+import Cookies from 'cookie-universal'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogTitle from '@mui/material/DialogTitle'
+import Button from '@mui/material/Button'
 
 const RegisterCourse = () => {
+  const [openDialog, setOpenDialog] = useState(false)
+  const cookies = Cookies()
   const [courses, setCourses] = useState([])
+  const [classCourse, setClassCourse] = useState([])
   const [loading, setLoading] = useState(true)
+  const [radioLoaidDKHP, setRadioLoaidDKHP] = useState('radioHocMoi')
+  const [currenSemester, setCurrentSemester] = useState('')
+  const [courseCode, setCourseCode] = useState('')
+  const [activeCourse, setActiveCourse] = useState(false)
 
-  if (!localStorage.getItem('account_id')) {
+  if (!cookies.get('accses_token')) {
     window.location.href = '/login'
+  }
+
+  function getCurrentYearSemester() {
+    const currentYear = new Date().getFullYear()
+    const currentMonth = new Date().getMonth() + 1
+
+    const currentYearSemester =
+      currentMonth >= 1 && currentMonth <= 6
+        ? `HK2(${currentYear - 1}-${currentYear})`
+        : `HK1(${currentYear}-${currentYear + 1})`
+
+    return currentYearSemester
   }
 
   useEffect(() => {
     document.title = 'Đăng ký học phần'
+    setCurrentSemester(getCurrentYearSemester())
     const fetchData = async () => {
       try {
         const res = await apiInforSv(localStorage.getItem('account_id'))
@@ -22,7 +49,7 @@ const RegisterCourse = () => {
           setLoading(true)
           return
         }
-        const resCourse = await getAllCourseOfMajor(res.data.student.major)
+        const resCourse = await getAllCourseOfMajor(res.data.student[0].major._id)
         if (resCourse.status !== 200) {
           setLoading(true)
           return
@@ -36,13 +63,38 @@ const RegisterCourse = () => {
     fetchData()
   }, [])
 
+  useEffect(() => {
+    const fetchDataClasCourse = async () => {
+      try {
+        const res = await getClassBySemesterAndCourse(currenSemester, courseCode)
+        if (res.status === 200) {
+          if (res.data.message !== 'ERR_404') {
+            setClassCourse(res.data.class)
+            setOpenDialog(false)
+          } else {
+            setOpenDialog(true)
+            setClassCourse([])
+          }
+        }
+      } catch (error) {
+        return
+      }
+    }
+    if (activeCourse) {
+      fetchDataClasCourse()
+    }
+  }, [courseCode, currenSemester, activeCourse])
+
   const enrollmentYear = 2020
   const currentYear = new Date().getFullYear()
   const semesters = []
 
   for (let year = enrollmentYear; year <= currentYear; year++) {
-    semesters.push(`HK1 ${year}-${year + 1}`)
-    semesters.push(`HK2 ${year}-${year + 1}`)
+    semesters.push(`HK1(${year}-${year + 1})`)
+    semesters.push(`HK2(${year}-${year + 1})`)
+  }
+  const handleClose = () => {
+    setOpenDialog(false)
   }
 
   if (loading) {
@@ -80,27 +132,88 @@ const RegisterCourse = () => {
         <div className='flex justify-start items-center font-bold text-lg border-b-2'>
           <span>Đăng ký học phần</span>
         </div>
+        <Dialog
+          open={openDialog}
+          onClose={handleClose}
+          aria-labelledby='alert-dialog-title'
+          aria-describedby='alert-dialog-description'
+        >
+          <DialogContent>
+            <DialogContentText id='alert-dialog-description'>Không có học phần cho kỳ này.</DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>OK</Button>
+          </DialogActions>
+        </Dialog>
         <div className='flex gap-8 justify-center items-center'>
           <div className='h-fit flex justify-end'>
-            <select name='' id='' className='h-9'>
-              {semesters.map((semester, index) => (
-                <option key={index} value={semester}>
-                  {semester}
-                </option>
-              ))}
+            <select
+              name=''
+              id=''
+              className='h-9 text-sm'
+              onChange={(e) => {
+                setCurrentSemester(e.target.value)
+                setActiveCourse(true)
+              }}
+            >
+              {semesters.map((semester, index) =>
+                currenSemester === semester ? (
+                  <option key={index} value={semester} selected>
+                    {semester}
+                  </option>
+                ) : (
+                  <option key={index} value={semester}>
+                    {semester}
+                  </option>
+                )
+              )}
             </select>
           </div>
           <div className='flex items-center justify-center gap-2'>
-            <input name='rdoLoaiDangKyHocPhan' type='radio' />
-            <label htmlFor=''>Học mới</label>
+            {radioLoaidDKHP === 'radioHocMoi' ? (
+              <input
+                name='rdoLoaiDangKyHocPhan'
+                id='radioHocMoi'
+                type='radio'
+                checked
+                onChange={() => setRadioLoaidDKHP('radioHocMoi')}
+              />
+            ) : (
+              <input name='rdoLoaiDangKyHocPhan' type='radio' onChange={() => setRadioLoaidDKHP('radioHocMoi')} />
+            )}
+            <label htmlFor='radioHocMoi'>Học mới</label>
           </div>
           <div className='flex items-center justify-center gap-2'>
-            <input name='rdoLoaiDangKyHocPhan' type='radio' />
-            <label htmlFor=''>Học lại</label>
+            {radioLoaidDKHP === 'rdoLoaiDangKyHocPhan' ? (
+              <input
+                name='rdoLoaiDangKyHocPhan'
+                id='radioHocLai'
+                type='radio'
+                checked
+                onChange={() => setRadioLoaidDKHP('rdoLoaiDangKyHocPhan')}
+              />
+            ) : (
+              <input
+                name='rdoLoaiDangKyHocPhan'
+                type='radio'
+                onChange={() => setRadioLoaidDKHP('rdoLoaiDangKyHocPhan')}
+              />
+            )}
+            <label htmlFor='radioHocLai'>Học lại</label>
           </div>
           <div className='flex items-center justify-center gap-2'>
-            <input name='rdoLoaiDangKyHocPhan' type='radio' />
-            <label htmlFor=''>Học cải thiện</label>
+            {radioLoaidDKHP === 'radioHocCaiThien' ? (
+              <input
+                name='rdoLoaiDangKyHocPhan'
+                id='radioHocCaiThien'
+                type='radio'
+                checked
+                onChange={() => setRadioLoaidDKHP('radioHocCaiThien')}
+              />
+            ) : (
+              <input name='rdoLoaiDangKyHocPhan' type='radio' onChange={() => setRadioLoaidDKHP('radioHocCaiThien')} />
+            )}
+            <label htmlFor='radioHocCaiThien'>Học cải thiện</label>
           </div>
         </div>
         {/* content */}
@@ -111,7 +224,7 @@ const RegisterCourse = () => {
           <table>
             <thead className='text-sm font-normal bg-table-header text-white'>
               <td className='w-14'></td>
-              <td>STT</td>
+              <td className='w-14'>STT</td>
               <td>Mã học phần</td>
               <td>Tên môn học/học phần</td>
               <td>TC</td>
@@ -127,7 +240,18 @@ const RegisterCourse = () => {
               {courses.map((course, index) => (
                 <tr key={index}>
                   <td>
-                    <input type='radio' name='a' />
+                    {courseCode === course.courseCode ? (
+                      <input type='radio' name='courseCode' checked />
+                    ) : (
+                      <input
+                        type='radio'
+                        name='courseCode'
+                        onChange={() => {
+                          setCourseCode(course.courseCode)
+                          setActiveCourse(true)
+                        }}
+                      />
+                    )}
                   </td>
                   <td>{index + 1}</td>
                   <td>{course.courseCode}</td>
@@ -171,27 +295,29 @@ const RegisterCourse = () => {
             <table>
               <thead className='text-sm h-10 font-normal bg-table-header text-white'>
                 <td className='w-14'></td>
-                <td>STT</td>
-                <td>Mã LHP</td>
-                <td>Tên lớp học phần</td>
-                <td>Lớp dự kiến</td>
-                <td>Sĩ số tối đa</td>
-                <td>Đã đăng ký</td>
-                <td>Trạng thái</td>
+                <td className='w-14'>STT</td>
+                <td className='w-28'>Mã LHP</td>
+                <td className='w-2/5'>Tên lớp học phần</td>
+                <td className='w-36'>Lớp dự kiến</td>
+                <td className='w-28'>Sĩ số tối đa</td>
+                <td className='w-28'>Đã đăng ký</td>
+                <td className='w-36'>Trạng thái</td>
               </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <input type='radio' />
-                  </td>
-                  <td>1</td>
-                  <td>4230002421</td>
-                  <td>Giáo dục quốc phòng</td>
-                  <td>4203002421-DHCT16A-HL</td>
-                  <td>30</td>
-                  <td>0</td>
-                  <td>Chờ đăng ký</td>
-                </tr>
+              <tbody className='text-base'>
+                {classCourse.map((classCourse, index) => (
+                  <tr key={index}>
+                    <td>
+                      <input type='radio' />
+                    </td>
+                    <td>{index + 1}</td>
+                    <td>{classCourse.classCode}</td>
+                    <td>{classCourse.classCode + ' - ' + classCourse.className}</td>
+                    <td>{classCourse.expectedClass}</td>
+                    <td>{classCourse.maxStudents}</td>
+                    <td>{classCourse.currentStudents.length}</td>
+                    <td>Chờ đăng ký</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
