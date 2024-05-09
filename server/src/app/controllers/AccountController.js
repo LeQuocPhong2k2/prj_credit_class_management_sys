@@ -16,7 +16,7 @@ class AccountController {
               userCode: account.userCode,
               accountType: account.accountType,
             },
-            "mk"
+            "mk" // khóa bí mật
           );
           return res.status(200).json({
             message: "Login successful",

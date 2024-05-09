@@ -10,7 +10,7 @@ const verifyToken = (req, res, next) => {
   if (!token) {
     return res.status(403).send({ message: "No token provided!" });
   } else {
-    var ketqua = jwt.verify(token, "mk");
+    var ketqua = jwt.verify(token, "mk"); // check token có hợp lệ không
     if (ketqua) {
       next();
     }
