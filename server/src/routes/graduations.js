@@ -1,10 +1,7 @@
-import express from 'express'
-const router = express.Router()
+import express from "express";
+const router = express.Router();
 
-import GraduationController from '../app/controllers/GraduationController.js'
+import GraduationController from "../app/controllers/GraduationController.js";
 
-router.post(
-  '/findGraduationByStudentID',
-  GraduationController.findGraduationByStudentID
-)
-export default router
+router.post("/findGraduationByStudentID", GraduationController.findGraduationByStudentID);
+export default router;
