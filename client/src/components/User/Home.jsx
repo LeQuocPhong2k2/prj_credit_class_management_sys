@@ -40,7 +40,8 @@ const Home = () => {
           const newData = {
             message: res.data.message,
             class: res.data.class,
-            course: res.data.course
+            course: res.data.course,
+            classCode: res.data.classCode
           }
           if (data) {
             data.map((item) => {
@@ -319,38 +320,34 @@ const Home = () => {
               <span>Số tín chỉ</span>
             </div>
           </div>
-          <div>
+          {/* <div> */}
+          <div style={{ height: '150px', overflow: 'auto' }}>
             <ul>
-              {data.map((item, index) => (
-                <li key={index} className='grid grid-cols-5'>
-                  <div className='col-span-4 grid grid-flow-row'>
-                    <div className='flex justify-start text-link'>
-                      <span>{item.class._id}</span>
+              {data
+                .reduce((unique, item) => {
+                  return unique.findIndex(
+                    (uniqueItem) =>
+                      uniqueItem.class.classCode === item.class.classCode &&
+                      uniqueItem.course.courseName === item.course.courseName
+                  ) < 0
+                    ? [...unique, item]
+                    : unique
+                }, [])
+                .map((item, index) => (
+                  <li key={index} className='grid grid-cols-5'>
+                    <div className='col-span-4 grid grid-flow-row'>
+                      <div className='flex justify-start text-link'>
+                        <span>{item.class.classCode}</span>
+                      </div>
+                      <div className='flex justify-start'>
+                        <span>{item.course.courseName}</span>
+                      </div>
                     </div>
-                    <div className='flex justify-start'>
-                      <span>{item.course.courseName}</span>
+                    <div className='flex justify-end items-center'>
+                      <span>{item.course.credits}</span>
                     </div>
-                  </div>
-                  <div className='flex justify-end items-center'>
-                    <span>{item.course.credits}</span>
-                  </div>
-                </li>
-              ))}
-              {/* {list_course.map((course, index) => (
-                <li key={index} className='grid grid-cols-5'>
-                  <div className='col-span-4 grid grid-flow-row'>
-                    <div className='flex justify-start text-link'>
-                      <span>{course.courseCode}</span>
-                    </div>
-                    <div className='flex justify-start'>
-                      <span>{course.courseName}</span>
-                    </div>
-                  </div>
-                  <div className='flex justify-end items-center'>
-                    <span>{course.credits}</span>
-                  </div>
-                </li>
-              ))} */}
+                  </li>
+                ))}
             </ul>
           </div>
         </div>
