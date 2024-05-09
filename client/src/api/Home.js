@@ -20,11 +20,12 @@ async function apiInforSv(userCode) {
   return res
 }
 
-async function apiClass(classID) {
+async function findClassCredirBySemester(student_id, semester) {
   const res = await axios.post(
-    'http://localhost:3003/class/findClassByClassID',
+    'http://localhost:3003/class/findClassCredirBySemester',
     {
-      classID: classID
+      student_id: student_id,
+      semester: semester
     },
     {
       headers: {
@@ -36,4 +37,20 @@ async function apiClass(classID) {
   return res
 }
 
-export { apiInforSv, apiClass }
+async function getCreditsByAccountID(account_id) {
+  const res = await axios.post(
+    'http://localhost:3003/student/getCreditsByAccountID',
+    {
+      account_id: account_id
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + cookies.get('accses_token')
+      }
+    }
+  )
+  return res
+}
+
+export { apiInforSv, findClassCredirBySemester, getCreditsByAccountID }

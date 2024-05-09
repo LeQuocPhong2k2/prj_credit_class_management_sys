@@ -1,6 +1,32 @@
 import Course from "../models/Course.js";
+import Major from "../models/Major.js";
 
 class CourseController {
+  async getAllCourseOfMajor(req, res) {
+    const major_id = req.body.major_id;
+    const major = await Major.findOne({ _id: major_id });
+    let resultData = [];
+    if (major) {
+      let promises = major.courses.map(async (e) => {
+        const course = await Course.findOne({ _id: e });
+        let prerequisites;
+        const coursePrerequisites = await Promise.all(
+          course.prerequisites.map(async (prerequisiteId) => {
+            const prerequisiteCourse = await Course.findById(prerequisiteId);
+            return prerequisiteCourse.courseCode.concat("(b)");
+          })
+        );
+        prerequisites = await Promise.all(coursePrerequisites);
+        return { courseCode: course.courseCode, courseName: course.courseName, courseCredit: course.credits, elective: course.elective, prerequisites: prerequisites };
+      });
+      resultData = await Promise.all(promises);
+      res.status(200).json({ message: "Get course successfully!!!", courses: resultData });
+    } else {
+      console.log("Không tìm thấy major");
+      res.status(404).json({ message: "major not found!!!" });
+    }
+  }
+
   // get Course by courseID
   async findCourseByCourseID(req, res) {
     const courseID = req.body.courseID;
