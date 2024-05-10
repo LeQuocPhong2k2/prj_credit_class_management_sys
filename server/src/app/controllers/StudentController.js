@@ -27,6 +27,17 @@ class StudentController {
         $unwind: "$major",
       },
       {
+        $lookup: {
+          from: "accounts",
+          localField: "account_id",
+          foreignField: "_id",
+          as: "account",
+        },
+      },
+      {
+        $unwind: "$account",
+      },
+      {
         $project: {
           _id: 1,
           userName: 1,
@@ -38,6 +49,7 @@ class StudentController {
           definiteClass: 1,
           major: "$major",
           class: 1,
+          mssv: "$account.userCode",
         },
       },
     ]);

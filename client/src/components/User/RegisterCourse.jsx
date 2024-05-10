@@ -198,11 +198,14 @@ const RegisterCourse = () => {
           </DialogActions>
         </Dialog>
         <div className='flex gap-8 justify-center items-center'>
-          <div className='h-fit flex justify-end'>
+          <div className='h-fit flex justify-end gap-2'>
+            <div className='font-bold text-black text-base flex items-center'>
+              <span>Đợt đăng ký</span>
+            </div>
             <select
               name=''
               id=''
-              className='h-9 text-sm'
+              className='h-9 text-sm rounded-lg'
               onChange={(e) => {
                 handleSelectSemester(e.target.value)
               }}
@@ -390,6 +393,13 @@ const RegisterCourse = () => {
                 <td className='w-60'>Trạng thái</td>
               </thead>
               <tbody className='text-base'>
+                {classCourse.length === 0 && (
+                  <tr>
+                    <td colSpan='8' className='text-center'>
+                      Không có lớp học phần cho môn học này
+                    </td>
+                  </tr>
+                )}
                 {classCourse.map((classCourse, index) => (
                   <tr key={index}>
                     <td>
