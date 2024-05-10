@@ -3,10 +3,11 @@ import Cookies from 'cookie-universal'
 
 const cookies = Cookies()
 
-async function getAllCourseOfMajor(major_id) {
+async function getCourseNew(account_id, major_id) {
   const res = await axios.post(
-    'http://localhost:3003/course/getAllCourseOfMajor',
+    'http://localhost:3003/course/getCourseNew',
     {
+      account_id: account_id,
       major_id: major_id
     },
     {
@@ -19,12 +20,12 @@ async function getAllCourseOfMajor(major_id) {
   return res
 }
 
-async function getClassBySemesterAndCourse(semester, course_code) {
+async function getCourseByStatus(account_id, status) {
   const res = await axios.post(
-    'http://localhost:3003/class/getClasCreditBySemesterAndCourse',
+    'http://localhost:3003/course/getCourseByStatus',
     {
-      semester: semester,
-      course_code: course_code
+      account_id: account_id,
+      status: status
     },
     {
       headers: {
@@ -36,4 +37,19 @@ async function getClassBySemesterAndCourse(semester, course_code) {
   return res
 }
 
-export { getAllCourseOfMajor, getClassBySemesterAndCourse }
+async function getClasCreditCourseCode(course_code) {
+  const res = await axios.post(
+    'http://localhost:3003/class/getClasCreditCourseCode',
+    {
+      course_code: course_code
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + cookies.get('accses_token')
+      }
+    }
+  )
+  return res
+}
+export { getCourseNew, getCourseByStatus, getClasCreditCourseCode }
