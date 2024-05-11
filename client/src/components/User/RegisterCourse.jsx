@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Toaster, toast } from 'react-hot-toast'
 import 'react-toastify/dist/ReactToastify.css'
-import { getAllCourseOfMajor, getClassBySemesterAndCourse } from '../../api/RegisterCourse'
+import { getCourseNew, getCourseByStatus, getClasCreditCourseCode } from '../../api/RegisterCourse'
 import { apiInforSv } from '../../api/Home'
 import { IoCloseCircleSharp } from 'react-icons/io5'
 import Cookies from 'cookie-universal'
@@ -9,17 +9,17 @@ import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
-import DialogTitle from '@mui/material/DialogTitle'
 import Button from '@mui/material/Button'
 
 const RegisterCourse = () => {
   const [openDialog, setOpenDialog] = useState(false)
   const cookies = Cookies()
+  const [student, setStudent] = useState([])
   const [courses, setCourses] = useState([])
   const [classCourse, setClassCourse] = useState([])
   const [loading, setLoading] = useState(true)
   const [radioLoaidDKHP, setRadioLoaidDKHP] = useState('radioHocMoi')
-  const [currenSemester, setCurrentSemester] = useState('')
+  const [currenSemester, setCurrentSemester] = useState(getCurrentYearSemester())
   const [courseCode, setCourseCode] = useState('')
   const [activeCourse, setActiveCourse] = useState(false)
 
@@ -39,9 +39,21 @@ const RegisterCourse = () => {
     return currentYearSemester
   }
 
+  function handleSelectSemester(semester) {
+    setCurrentSemester(semester)
+    setActiveCourse(true)
+    if (semester !== getCurrentYearSemester()) {
+      setOpenDialog(true)
+    }
+  }
+
+  function handleReset() {
+    setClassCourse([])
+    setCourseCode('')
+  }
+
   useEffect(() => {
     document.title = 'Đăng ký học phần'
-    setCurrentSemester(getCurrentYearSemester())
     const fetchData = async () => {
       try {
         const res = await apiInforSv(localStorage.getItem('account_id'))
@@ -49,12 +61,13 @@ const RegisterCourse = () => {
           setLoading(true)
           return
         }
-        const resCourse = await getAllCourseOfMajor(res.data.student[0].major._id)
+        setStudent(res.data.student)
+        const resCourse = await getCourseNew(res.data.student[0].account_id, res.data.student[0].major._id)
         if (resCourse.status !== 200) {
           setLoading(true)
           return
         }
-        setCourses(resCourse.data.courses)
+        setCourses(resCourse.data.courseNotClean)
         setLoading(false)
       } catch (e) {
         setLoading(true)
@@ -64,26 +77,65 @@ const RegisterCourse = () => {
   }, [])
 
   useEffect(() => {
+    if (currenSemester !== getCurrentYearSemester()) {
+      setOpenDialog(true)
+      return
+    }
+    if (radioLoaidDKHP === 'radioHocMoi') {
+      const fetchData = async () => {
+        try {
+          const resCourse = await getCourseNew(localStorage.getItem('account_id'), student[0].major._id)
+          if (resCourse.status === 200) {
+            setCourses(resCourse.data.courseNotClean)
+          }
+        } catch (error) {
+          return
+        }
+      }
+      fetchData()
+    }
+    if (radioLoaidDKHP === 'radioHocLai') {
+      const fetchData = async () => {
+        try {
+          const resCourse = await getCourseByStatus(localStorage.getItem('account_id'), 'Học lại')
+          if (resCourse.status === 200) {
+            setCourses(resCourse.data.courseReCleans)
+          }
+        } catch (error) {
+          return
+        }
+      }
+      fetchData()
+    }
+
+    if (radioLoaidDKHP === 'radioHocCaiThien') {
+      const fetchData = async () => {
+        try {
+          const resCourse = await getCourseByStatus(localStorage.getItem('account_id'), 'Hoàn thành')
+          if (resCourse.status === 200) {
+            setCourses(resCourse.data.courseReCleans)
+          }
+        } catch (error) {
+          return
+        }
+      }
+      fetchData()
+    }
+  }, [student, radioLoaidDKHP, currenSemester])
+
+  useEffect(() => {
     const fetchDataClasCourse = async () => {
       try {
-        const res = await getClassBySemesterAndCourse(currenSemester, courseCode)
-        if (res.status === 200) {
-          if (res.data.message !== 'ERR_404') {
-            setClassCourse(res.data.class)
-            setOpenDialog(false)
-          } else {
-            setOpenDialog(true)
-            setClassCourse([])
-          }
+        const resclassCredit = await getClasCreditCourseCode(courseCode)
+        if (resclassCredit.status === 200) {
+          setClassCourse(resclassCredit.data.classCredit)
         }
       } catch (error) {
         return
       }
     }
-    if (activeCourse) {
-      fetchDataClasCourse()
-    }
-  }, [courseCode, currenSemester, activeCourse])
+    fetchDataClasCourse()
+  }, [courseCode])
 
   const enrollmentYear = 2020
   const currentYear = new Date().getFullYear()
@@ -139,21 +191,23 @@ const RegisterCourse = () => {
           aria-describedby='alert-dialog-description'
         >
           <DialogContent>
-            <DialogContentText id='alert-dialog-description'>Không có học phần cho kỳ này.</DialogContentText>
+            <DialogContentText id='alert-dialog-description'>Đợt này sinh viên không được đăng ký</DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>OK</Button>
           </DialogActions>
         </Dialog>
         <div className='flex gap-8 justify-center items-center'>
-          <div className='h-fit flex justify-end'>
+          <div className='h-fit flex justify-end gap-2'>
+            <div className='font-bold text-black text-base flex items-center'>
+              <span>Đợt đăng ký</span>
+            </div>
             <select
               name=''
               id=''
-              className='h-9 text-sm'
+              className='h-9 text-sm rounded-lg'
               onChange={(e) => {
-                setCurrentSemester(e.target.value)
-                setActiveCourse(true)
+                handleSelectSemester(e.target.value)
               }}
             >
               {semesters.map((semester, index) =>
@@ -172,31 +226,51 @@ const RegisterCourse = () => {
           <div className='flex items-center justify-center gap-2'>
             {radioLoaidDKHP === 'radioHocMoi' ? (
               <input
+                className='cursor-pointer'
                 name='rdoLoaiDangKyHocPhan'
                 id='radioHocMoi'
                 type='radio'
                 checked
-                onChange={() => setRadioLoaidDKHP('radioHocMoi')}
+                onChange={() => {
+                  setRadioLoaidDKHP('radioHocMoi')
+                  handleReset()
+                }}
               />
             ) : (
-              <input name='rdoLoaiDangKyHocPhan' type='radio' onChange={() => setRadioLoaidDKHP('radioHocMoi')} />
+              <input
+                className='cursor-pointer'
+                name='rdoLoaiDangKyHocPhan'
+                type='radio'
+                onChange={() => {
+                  setRadioLoaidDKHP('radioHocMoi')
+                  handleReset()
+                }}
+              />
             )}
             <label htmlFor='radioHocMoi'>Học mới</label>
           </div>
           <div className='flex items-center justify-center gap-2'>
             {radioLoaidDKHP === 'rdoLoaiDangKyHocPhan' ? (
               <input
+                className='cursor-pointer'
                 name='rdoLoaiDangKyHocPhan'
                 id='radioHocLai'
                 type='radio'
                 checked
-                onChange={() => setRadioLoaidDKHP('rdoLoaiDangKyHocPhan')}
+                onChange={() => {
+                  setRadioLoaidDKHP('radioHocLai')
+                  handleReset()
+                }}
               />
             ) : (
               <input
+                className='cursor-pointer'
                 name='rdoLoaiDangKyHocPhan'
                 type='radio'
-                onChange={() => setRadioLoaidDKHP('rdoLoaiDangKyHocPhan')}
+                onChange={() => {
+                  setRadioLoaidDKHP('radioHocLai')
+                  handleReset()
+                }}
               />
             )}
             <label htmlFor='radioHocLai'>Học lại</label>
@@ -204,14 +278,26 @@ const RegisterCourse = () => {
           <div className='flex items-center justify-center gap-2'>
             {radioLoaidDKHP === 'radioHocCaiThien' ? (
               <input
+                className='cursor-pointer'
                 name='rdoLoaiDangKyHocPhan'
                 id='radioHocCaiThien'
                 type='radio'
                 checked
-                onChange={() => setRadioLoaidDKHP('radioHocCaiThien')}
+                onChange={() => {
+                  setRadioLoaidDKHP('radioHocCaiThien')
+                  handleReset()
+                }}
               />
             ) : (
-              <input name='rdoLoaiDangKyHocPhan' type='radio' onChange={() => setRadioLoaidDKHP('radioHocCaiThien')} />
+              <input
+                className='cursor-pointer'
+                name='rdoLoaiDangKyHocPhan'
+                type='radio'
+                onChange={() => {
+                  setRadioLoaidDKHP('radioHocCaiThien')
+                  handleReset()
+                }}
+              />
             )}
             <label htmlFor='radioHocCaiThien'>Học cải thiện</label>
           </div>
@@ -225,11 +311,11 @@ const RegisterCourse = () => {
             <thead className='text-sm font-normal bg-table-header text-white'>
               <td className='w-14'></td>
               <td className='w-14'>STT</td>
-              <td>Mã học phần</td>
-              <td>Tên môn học/học phần</td>
-              <td>TC</td>
-              <td>Bắt buộc</td>
-              <td>
+              <td className='w-28'>Mã học phần</td>
+              <td className='w-96'>Tên môn học/học phần</td>
+              <td className='w-14'>TC</td>
+              <td className='w-28'>Bắt buộc</td>
+              <td className='w-2/6'>
                 học phần: học trước (a),
                 <br />
                 tiên quyết (b), <br />
@@ -248,7 +334,6 @@ const RegisterCourse = () => {
                         name='courseCode'
                         onChange={() => {
                           setCourseCode(course.courseCode)
-                          setActiveCourse(true)
                         }}
                       />
                     )}
@@ -275,7 +360,11 @@ const RegisterCourse = () => {
                       </div>
                     )}
                   </td>
-                  <td>{course.prerequisites.map((prerequisite, index) => prerequisite + ' ')}</td>
+                  <td>
+                    {course.prerequisites.map((prerequisite, index) =>
+                      index !== course.prerequisites.length - 1 ? prerequisite + '(a), ' : prerequisite + '(a)'
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -297,25 +386,32 @@ const RegisterCourse = () => {
                 <td className='w-14'></td>
                 <td className='w-14'>STT</td>
                 <td className='w-28'>Mã LHP</td>
-                <td className='w-2/5'>Tên lớp học phần</td>
-                <td className='w-36'>Lớp dự kiến</td>
+                <td className='w-60 '>Tên lớp học phần</td>
+                <td className='w-60'>Lớp dự kiến</td>
                 <td className='w-28'>Sĩ số tối đa</td>
                 <td className='w-28'>Đã đăng ký</td>
-                <td className='w-36'>Trạng thái</td>
+                <td className='w-60'>Trạng thái</td>
               </thead>
               <tbody className='text-base'>
+                {classCourse.length === 0 && (
+                  <tr>
+                    <td colSpan='8' className='text-center'>
+                      Không có lớp học phần cho môn học này
+                    </td>
+                  </tr>
+                )}
                 {classCourse.map((classCourse, index) => (
                   <tr key={index}>
                     <td>
-                      <input type='radio' />
+                      <input type='radio' name='classCredit' />
                     </td>
                     <td>{index + 1}</td>
                     <td>{classCourse.classCode}</td>
-                    <td>{classCourse.classCode + ' - ' + classCourse.className}</td>
-                    <td>{classCourse.expectedClass}</td>
+                    <td>{classCourse.className}</td>
+                    <td>{classCourse.expectedClass + ' - ' + classCourse.classCode}</td>
                     <td>{classCourse.maxStudents}</td>
                     <td>{classCourse.currentStudents.length}</td>
-                    <td>Chờ đăng ký</td>
+                    <td>Chờ sinh viên đăng ký</td>
                   </tr>
                 ))}
               </tbody>

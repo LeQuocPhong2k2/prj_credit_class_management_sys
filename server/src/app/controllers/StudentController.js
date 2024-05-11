@@ -27,6 +27,17 @@ class StudentController {
         $unwind: "$major",
       },
       {
+        $lookup: {
+          from: "accounts",
+          localField: "account_id",
+          foreignField: "_id",
+          as: "account",
+        },
+      },
+      {
+        $unwind: "$account",
+      },
+      {
         $project: {
           _id: 1,
           userName: 1,
@@ -38,11 +49,12 @@ class StudentController {
           definiteClass: 1,
           major: "$major",
           class: 1,
+          mssv: "$account.userCode",
         },
       },
     ]);
 
-    if (studentInfo) {
+    if (studentInfo.length > 0) {
       res.status(200).json({
         message: "Login successfully!!!",
         student: studentInfo,
@@ -62,7 +74,7 @@ class StudentController {
       const studentData = await Student.findOne({ account_id: account_id });
       if (studentData) {
         let promises = studentData.class.map(async (e) => {
-          if (e.status === "HOANTHANH") {
+          if (e.status === "Hoàn thành") {
             const classData = await Class.findOne({ _id: e.classCode });
             if (classData) {
               const course = await Course.findOne({ _id: classData.course });

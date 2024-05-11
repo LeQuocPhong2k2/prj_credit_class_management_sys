@@ -1,7 +1,151 @@
 import Course from "../models/Course.js";
 import Major from "../models/Major.js";
+import Student from "../models/Student.js";
+import { ObjectId } from "mongodb";
 
 class CourseController {
+  async getCourseNew(req, res) {
+    const account_id = req.body.account_id;
+    const major_id = req.body.major_id;
+    try {
+      const coursesDone = await Student.aggregate([
+        {
+          $match: {
+            account_id: new ObjectId(account_id),
+          },
+        },
+        {
+          $lookup: {
+            from: "class",
+            localField: "class.classCode",
+            foreignField: "_id",
+            as: "class",
+          },
+        },
+        {
+          $project: {
+            "class.course": 1,
+          },
+        },
+      ]);
+
+      const major = await Major.aggregate([
+        {
+          $match: {
+            _id: new ObjectId(major_id),
+          },
+        },
+        {
+          $lookup: {
+            from: "courses",
+            localField: "courses",
+            foreignField: "_id",
+            as: "courses",
+          },
+        },
+        {
+          $unwind: "$courses",
+        },
+        {
+          $match: {
+            "courses._id": { $nin: coursesDone[0].class.map((e) => e.course) },
+          },
+        },
+        {
+          $lookup: {
+            from: "courses",
+            localField: "courses.prerequisites",
+            foreignField: "_id",
+            as: "courses.prerequisites",
+          },
+        },
+        {
+          $project: {
+            _id: "$courses._id",
+            courseCode: "$courses.courseCode",
+            courseName: "$courses.courseName",
+            courseCredit: "$courses.credits",
+            elective: "$courses.elective",
+            prerequisites: "$courses.prerequisites.courseCode",
+          },
+        },
+      ]);
+
+      res.status(200).json({ message: "Get course not clean successfully!!!", courseNotClean: major });
+    } catch (err) {
+      res.status(500).json({ message: "Server errorr" });
+    }
+  }
+  async getCourseByStatus(req, res) {
+    const account_id = req.body.account_id;
+    const status = req.body.status;
+    try {
+      const courseReCleans = await Student.aggregate([
+        {
+          $match: {
+            account_id: new ObjectId(account_id),
+          },
+        },
+        {
+          $unwind: "$class",
+        },
+        {
+          $match: {
+            "class.status": status,
+          },
+        },
+        {
+          $lookup: {
+            from: "class",
+            localField: "class.classCode",
+            foreignField: "_id",
+            as: "class.classCode",
+          },
+        },
+        {
+          $lookup: {
+            from: "courses",
+            localField: "class.classCode.course",
+            foreignField: "_id",
+            as: "class.classCode.course",
+          },
+        },
+        {
+          $project: {
+            course: "$class.classCode.course",
+          },
+        },
+        {
+          $unwind: "$course",
+        },
+        {
+          $lookup: {
+            from: "courses",
+            localField: "course.prerequisites",
+            foreignField: "_id",
+            as: "course.prerequisites",
+          },
+        },
+        {
+          $project: {
+            _id: "$course._id",
+            courseCode: "$course.courseCode",
+            courseName: "$course.courseName",
+            courseCredit: "$course.credits",
+            elective: "$course.elective",
+            prerequisites: "$course.prerequisites.courseCode",
+          },
+        },
+      ]);
+      if (courseReCleans.length > 0) {
+        res.status(200).json({ message: "Get course clean successfully!!!", courseReCleans: courseReCleans });
+      } else {
+        res.status(200).json({ message: "ERR_404", courseReCleans: courseReCleans });
+      }
+    } catch (err) {
+      res.status(500).json({ message: "Server errorr" });
+    }
+  }
   async getAllCourseOfMajor(req, res) {
     const major_id = req.body.major_id;
     const major = await Major.findOne({ _id: major_id });
