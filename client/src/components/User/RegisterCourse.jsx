@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { Toaster, toast } from 'react-hot-toast'
 import 'react-toastify/dist/ReactToastify.css'
-import { getCourseNew, getCourseByStatus, getClasCreditCourseCode } from '../../api/RegisterCourse'
+import {
+  getCourseNew,
+  getCourseByStatus,
+  getClasCreditCourseCode,
+  getClassCreditDetailsByClassCode
+} from '../../api/RegisterCourse'
 import { apiInforSv } from '../../api/Home'
 import { IoCloseCircleSharp } from 'react-icons/io5'
 import Cookies from 'cookie-universal'
@@ -10,6 +15,7 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import Button from '@mui/material/Button'
+import moment from 'moment-timezone'
 
 const RegisterCourse = () => {
   const [openDialog, setOpenDialog] = useState(false)
@@ -21,7 +27,10 @@ const RegisterCourse = () => {
   const [radioLoaidDKHP, setRadioLoaidDKHP] = useState('radioHocMoi')
   const [currenSemester, setCurrentSemester] = useState(getCurrentYearSemester())
   const [courseCode, setCourseCode] = useState('')
-  const [activeCourse, setActiveCourse] = useState(false)
+  const [classCreditDetail, setClassCreditDetail] = useState([])
+  const [classCreditCode, setClassCreditCode] = useState('')
+  const [openDialogTeacher, setOpenDialogTeacher] = useState(false)
+  const [teachers, setTeachers] = useState([])
 
   if (!cookies.get('accses_token')) {
     window.location.href = '/login'
@@ -41,7 +50,6 @@ const RegisterCourse = () => {
 
   function handleSelectSemester(semester) {
     setCurrentSemester(semester)
-    setActiveCourse(true)
     if (semester !== getCurrentYearSemester()) {
       setOpenDialog(true)
     }
@@ -50,6 +58,7 @@ const RegisterCourse = () => {
   function handleReset() {
     setClassCourse([])
     setCourseCode('')
+    setClassCreditCode('')
   }
 
   useEffect(() => {
@@ -124,6 +133,8 @@ const RegisterCourse = () => {
   }, [student, radioLoaidDKHP, currenSemester])
 
   useEffect(() => {
+    setClassCreditCode('')
+    setClassCreditDetail([])
     const fetchDataClasCourse = async () => {
       try {
         const resclassCredit = await getClasCreditCourseCode(courseCode)
@@ -137,6 +148,20 @@ const RegisterCourse = () => {
     fetchDataClasCourse()
   }, [courseCode])
 
+  useEffect(() => {
+    const fetchDataClasCourse = async () => {
+      try {
+        const resclassCreditDetails = await getClassCreditDetailsByClassCode(classCreditCode)
+        if (resclassCreditDetails.status === 200 && resclassCreditDetails.data.message !== 'ERR_404') {
+          setClassCreditDetail(resclassCreditDetails.data.class)
+        }
+      } catch (error) {
+        return
+      }
+    }
+    fetchDataClasCourse()
+  }, [classCreditCode])
+
   const enrollmentYear = 2020
   const currentYear = new Date().getFullYear()
   const semesters = []
@@ -147,6 +172,26 @@ const RegisterCourse = () => {
   }
   const handleClose = () => {
     setOpenDialog(false)
+  }
+
+  const handleCloseDialogTeacher = () => {
+    setOpenDialogTeacher(false)
+  }
+
+  function handleOpenDialogTeacher(id) {
+    const teacher = classCreditDetail.find((teacher) => teacher.classDetails.teachers._id === id)
+    setTeachers(teacher.classDetails.teachers)
+    setOpenDialogTeacher(true)
+  }
+
+  function handleRegisterClassCredit() {
+    var group = document.getElementById('group')
+
+    const data = {
+      classCreditCode: classCreditCode,
+      group: group.value
+    }
+    alert('Đăng ký thành công' + classCreditCode + ' ' + group.value)
   }
 
   if (loading) {
@@ -195,6 +240,28 @@ const RegisterCourse = () => {
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>OK</Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={openDialogTeacher}
+          onClose={handleCloseDialogTeacher}
+          aria-labelledby='alert-dialog-title-teacher'
+          aria-describedby='alert-dialog-description-teacher'
+        >
+          <DialogContent>
+            <DialogContentText id='alert-dialog-description-teacher'>
+              {'Tên giảng viên: ' + teachers.userName}
+            </DialogContentText>
+            <DialogContentText id='alert-dialog-description-teacher'>{'Email: ' + teachers.email}</DialogContentText>
+            <DialogContentText id='alert-dialog-description-teacher'>
+              {'Ngày sinh: ' + teachers.dateOfBirth}
+            </DialogContentText>
+            <DialogContentText id='alert-dialog-description-teacher'>
+              {'Giới tính: ' + teachers.gender}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialogTeacher}>OK</Button>
           </DialogActions>
         </Dialog>
         <div className='flex gap-8 justify-center items-center'>
@@ -403,7 +470,13 @@ const RegisterCourse = () => {
                 {classCourse.map((classCourse, index) => (
                   <tr key={index}>
                     <td>
-                      <input type='radio' name='classCredit' />
+                      <input
+                        type='radio'
+                        name='classCredit'
+                        onChange={() => {
+                          setClassCreditCode(classCourse.classCode)
+                        }}
+                      />
                     </td>
                     <td>{index + 1}</td>
                     <td>{classCourse.classCode}</td>
@@ -425,8 +498,14 @@ const RegisterCourse = () => {
           </div>
           <div className='flex gap-10 justify-center items-center'>
             <span>Nhóm thực hành</span>
-            <select className='w-40 h-9 rounded-md' name='' id=''>
-              <option value='1'>1</option>
+            <select className='w-40 h-9 text-sm rounded-lg' name='group' id='group'>
+              {classCreditDetail && classCreditDetail.length > 0 ? (
+                classCreditDetail.map((classCreditDetail, index) => (
+                  <option value={classCreditDetail.classDetails.group}>{classCreditDetail.classDetails.group}</option>
+                ))
+              ) : (
+                <option value='1'>1</option>
+              )}
             </select>
             <input
               className='p-1 pl-2 pr-2 font-medium cursor-pointer bg-yellow-500 text-white'
@@ -437,38 +516,74 @@ const RegisterCourse = () => {
           <div className='grid mt-2'>
             <table>
               <thead className='text-sm h-10 font-normal bg-table-header text-white'>
-                <td>STT</td>
-                <td>Lịch học</td>
-                <td>Nhóm TH</td>
-                <td>Phòng</td>
-                <td>Dãy nhà</td>
+                <td className='w-14'>STT</td>
+                <td className='w-36'>Lịch học</td>
+                <td className='w-36'>Nhóm TH</td>
+                <td className='w-28'>Phòng</td>
+                <td className='w-28'>Dãy nhà</td>
                 <td>Cở sở</td>
-                <td>Giảng viên</td>
-                <td>Thời gian</td>
-                <td className='w-24'></td>
+                <td className='w-60'>Giảng viên</td>
+                <td className='w-60'>Thời gian</td>
+                <td className='w-28'></td>
               </thead>
               <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>LT - Thứ 5 (T13 - T15)</td>
-                  <td>1</td>
-                  <td>A.01</td>
-                  <td>A</td>
-                  <td>Cở sở 1 (Thành phố Hồ Chí Minh)</td>
-                  <td>ThS Nguyễn Văn Nam</td>
-                  <td>02/05/2024 - 25/06/2024</td>
-                  <td>
-                    <input className='text-link cursor-pointer' type='button' value='Xem' />
-                  </td>
-                </tr>
+                {classCreditDetail && classCreditDetail.length > 0 ? (
+                  classCreditDetail.map((classCreditDetail, index) => (
+                    <tr>
+                      <td>{index + 1}</td>
+                      <td>
+                        {classCreditDetail.classDetails.type +
+                          ' Thứ ' +
+                          classCreditDetail.classDetails.day +
+                          ' (' +
+                          classCreditDetail.classDetails.lesson +
+                          ')'}
+                      </td>
+                      <td>{classCreditDetail.classDetails.group}</td>
+                      <td>{classCreditDetail.classDetails.room}</td>
+                      <td>{classCreditDetail.classDetails.house}</td>
+                      <td>{classCreditDetail.classDetails.facility}</td>
+                      <td>{classCreditDetail.classDetails.teachers.userName}</td>
+                      <td>
+                        {moment(classCreditDetail.time.startTime).format('DD-MM-YYYY') +
+                          ' - ' +
+                          moment(classCreditDetail.time.endTime).format('DD-MM-YYYY')}
+                      </td>
+                      <td className='text-link cursor-pointer'>
+                        <button
+                          id={classCreditDetail.classDetails.teachers._id}
+                          onClick={(e) => handleOpenDialogTeacher(e.target.id)}
+                        >
+                          Xem
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan='9' className='text-center'>
+                      Không có lớp học phần cho môn học này
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
             <div className='mt-2'>
-              <input
-                className='w-36 p-1 pl-2 pr-2 font-medium cursor-pointer bg-yellow-500 text-white'
-                type='button'
-                value='Đăng ký môn học'
-              />
+              {classCreditCode === '' ? (
+                <input
+                  className='w-36 p-1 pl-2 pr-2 font-medium cursor-not-allowed bg-yellow-500 text-white'
+                  type='button'
+                  value='Đăng ký môn học'
+                  disabled
+                />
+              ) : (
+                <input
+                  className='w-36 p-1 pl-2 pr-2 font-medium cursor-pointer bg-yellow-500 text-white active:bg-yellow-600 hover:bg-yellow-600'
+                  type='button'
+                  onClick={handleRegisterClassCredit}
+                  value='Đăng ký môn học'
+                />
+              )}
             </div>
           </div>
         </div>

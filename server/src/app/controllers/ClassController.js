@@ -123,6 +123,41 @@ class ClassController {
     }
   }
 
+  async getClassCreditDetailsByClassCode(req, res) {
+    const class_code = req.body.class_code;
+    try {
+      const classData = await Class.aggregate([
+        {
+          $match: {
+            classCode: class_code,
+          },
+        },
+        {
+          $unwind: "$classDetails",
+        },
+        {
+          $lookup: {
+            from: "teachers",
+            localField: "classDetails.teacher",
+            foreignField: "_id",
+            as: "classDetails.teachers",
+          },
+        },
+        {
+          $unwind: "$classDetails.teachers",
+        },
+      ]);
+      if (classData) {
+        res.status(200).json({ message: "Get class successfully!!!", class: classData });
+      } else {
+        res.status(200).json({ message: "ERR_404" });
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({ message: "Error occurred while fetching data!" });
+    }
+  }
+
   // create a new class
   async createClass(req, res) {
     const { className, course, maxStudents } = req.body;

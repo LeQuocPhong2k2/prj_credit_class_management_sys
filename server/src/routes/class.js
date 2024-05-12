@@ -11,4 +11,5 @@ router.post("/addStudentToClass", ClassController.addStudentToClass);
 router.post("/removeStudentFromClass", ClassController.removeStudentFromClass);
 router.post("/findClassesByCourseID", ClassController.findClassesByCourseID);
 router.post("/getClasCreditReLean", ClassController.getClasCreditReLean);
+router.post("/getClassCreditDetailsByClassCode", ClassController.getClassCreditDetailsByClassCode);
 export default router;
