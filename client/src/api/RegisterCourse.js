@@ -85,4 +85,29 @@ async function getClassCreditDetailsByClassCode(class_code) {
   return res
 }
 
-export { getCourseNew, getCourseByStatus, getClasCreditCourseCode, findTeacherByID, getClassCreditDetailsByClassCode }
+async function registerClassCredit(data) {
+  const res = await axios.post(
+    'http://localhost:3003/student/registerClassCredit',
+    {
+      classCreditCode: data.classCreditCode,
+      group: data.group,
+      account_id: data.account_id
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + cookies.get('accses_token')
+      }
+    }
+  )
+  return res
+}
+
+export {
+  getCourseNew,
+  getCourseByStatus,
+  getClasCreditCourseCode,
+  findTeacherByID,
+  getClassCreditDetailsByClassCode,
+  registerClassCredit
+}

@@ -5,7 +5,8 @@ import {
   getCourseNew,
   getCourseByStatus,
   getClasCreditCourseCode,
-  getClassCreditDetailsByClassCode
+  getClassCreditDetailsByClassCode,
+  registerClassCredit
 } from '../../api/RegisterCourse'
 import { apiInforSv } from '../../api/Home'
 import { IoCloseCircleSharp } from 'react-icons/io5'
@@ -56,9 +57,11 @@ const RegisterCourse = () => {
   }
 
   function handleReset() {
+    setCourses([])
     setClassCourse([])
     setCourseCode('')
     setClassCreditCode('')
+    setClassCreditDetail([])
   }
 
   useEffect(() => {
@@ -86,6 +89,7 @@ const RegisterCourse = () => {
   }, [])
 
   useEffect(() => {
+    handleReset()
     if (currenSemester !== getCurrentYearSemester()) {
       setOpenDialog(true)
       return
@@ -134,6 +138,7 @@ const RegisterCourse = () => {
 
   useEffect(() => {
     setClassCreditCode('')
+    setClassCourse([])
     setClassCreditDetail([])
     const fetchDataClasCourse = async () => {
       try {
@@ -188,10 +193,25 @@ const RegisterCourse = () => {
     var group = document.getElementById('group')
 
     const data = {
+      account_id: localStorage.getItem('account_id'),
       classCreditCode: classCreditCode,
       group: group.value
     }
-    alert('Đăng ký thành công' + classCreditCode + ' ' + group.value)
+    const fetchData = async () => {
+      try {
+        const res = await registerClassCredit(data)
+        if (res.status === 200) {
+          toast.success(res.data.message)
+          // reload page
+          window.location.reload()
+        } else {
+          toast.error(res.data.message)
+        }
+      } catch (error) {
+        return
+      }
+    }
+    fetchData()
   }
 
   if (loading) {
@@ -225,6 +245,7 @@ const RegisterCourse = () => {
 
   return (
     <div className='grid grid-flow-row pl-40 pr-40 pt-4 text-color-wrapper'>
+      <Toaster toastOptions={{ duration: 2200 }} />
       <div className='grid gap-2 shadow shadow-gray-500 rounded-md p-4'>
         <div className='flex justify-start items-center font-bold text-lg border-b-2'>
           <span>Đăng ký học phần</span>

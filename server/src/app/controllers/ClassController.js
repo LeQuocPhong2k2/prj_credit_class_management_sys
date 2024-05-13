@@ -4,6 +4,7 @@ import moment from "moment-timezone";
 import Student from "../models/Student.js";
 import { ObjectId } from "mongodb";
 class ClassController {
+  //get class by classID
   async findClassByClassID(req, res) {
     const classID = req.body.classID;
 
@@ -26,6 +27,7 @@ class ClassController {
       });
   }
 
+  //get class by học kỳ và sinh viên
   async getClasCreditBySemesterAndCurrentSV(req, res) {
     const semester = req.body.semester;
     const student_id = req.body.student_id;
@@ -49,6 +51,7 @@ class ClassController {
     }
   }
 
+  //get class học lại
   async getClasCreditReLean(req, res) {
     const semester = req.body.semester;
     const account_id = req.body.account_id;
@@ -89,6 +92,7 @@ class ClassController {
     res.status(200).json({ message: "Get class successfully!!!", class: student });
   }
 
+  //get class by code
   async getClasCreditCourseCode(req, res) {
     const course_code = req.body.course_code;
 
@@ -123,6 +127,7 @@ class ClassController {
     }
   }
 
+  //get classdetails by classCode
   async getClassCreditDetailsByClassCode(req, res) {
     const class_code = req.body.class_code;
     try {
@@ -156,6 +161,14 @@ class ClassController {
       console.error("Error:", error);
       res.status(500).json({ message: "Error occurred while fetching data!" });
     }
+  }
+
+  //get class credit vừa đăng ký trong kỳ này
+  async getClasCreditBySemester(req, res) {
+    const account_id = req.body.account_id;
+    const semester = req.body.semester;
+    let classDataBySemester = [];
+    let sumCredit = 0;
   }
 
   // create a new class

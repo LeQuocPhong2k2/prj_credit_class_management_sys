@@ -4,6 +4,7 @@ import Student from "../models/Student.js";
 import { ObjectId } from "mongodb";
 
 class CourseController {
+  //get Course đăng ký mới
   async getCourseNew(req, res) {
     const account_id = req.body.account_id;
     const major_id = req.body.major_id;
@@ -76,6 +77,8 @@ class CourseController {
       res.status(500).json({ message: "Server errorr" });
     }
   }
+
+  //get Course by status [Học lại, Học cải thiện]
   async getCourseByStatus(req, res) {
     const account_id = req.body.account_id;
     const status = req.body.status;
@@ -146,6 +149,8 @@ class CourseController {
       res.status(500).json({ message: "Server errorr" });
     }
   }
+
+  //get Course của ngành
   async getAllCourseOfMajor(req, res) {
     const major_id = req.body.major_id;
     const major = await Major.findOne({ _id: major_id });

@@ -4,6 +4,7 @@ import Account from "../models/Account.js";
 import Class from "../models/Class.js";
 import Course from "../models/Course.js";
 import { ObjectId } from "mongodb";
+import moment from "moment-timezone";
 
 class StudentController {
   async findStudentByAccountID(req, res) {
@@ -95,6 +96,66 @@ class StudentController {
       console.error("Error:", error);
       res.status(500).json({ message: "Error occurred while fetching data!" });
     }
+  }
+
+  async registerClassCredit(req, res) {
+    const classCreditCode = req.body.classCreditCode;
+    const group = req.body.group;
+    const account_id = req.body.account_id;
+
+    try {
+      const studentData = await Student.findOne({ account_id: account_id });
+      if (studentData) {
+        const classData = await Class.findOne({ classCode: classCreditCode });
+        if (classData) {
+          const course = await Course.findOne({ _id: classData.course });
+          if (course) {
+            const student = await Student.findOneAndUpdate(
+              { account_id: account_id },
+              {
+                $push: {
+                  class: {
+                    classCode: classData._id,
+                    dateRegister: moment().tz("Asia/Ho_Chi_Minh").format("YYYY-MM-DD HH:mm:ss"),
+                    mark: 0,
+                    grank: 0,
+                    status: "Đăng ký mới",
+                    group: group,
+                  },
+                },
+              }
+            );
+            if (classData.currentStudents.length >= classData.maxStudents) {
+              // Nếu lớp đã đủ số lượng sinh viên thì lưu vào waitingList
+              const updateClass = await Class.findOneAndUpdate(
+                { classCode: classCreditCode },
+                {
+                  $push: {
+                    waitlist: student._id,
+                  },
+                }
+              );
+              res.status(200).json({ message: "Class full save wating list" });
+            } else {
+              const updateClass = await Class.findOneAndUpdate(
+                { classCode: classCreditCode },
+                {
+                  $push: {
+                    // cập nhật currentStudents: Array objectId
+                    currentStudents: student._id,
+                  },
+                }
+              );
+              res.status(200).json({ message: "Register class credit successfully!!!" });
+            }
+          } else {
+            res.status(404).json({ message: "Course not found!!!" });
+          }
+        } else {
+          res.status(404).json({ message: "Class not found!!!" });
+        }
+      }
+    } catch (error) {}
   }
 }
 export default new StudentController();
