@@ -17,6 +17,7 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import Button from '@mui/material/Button'
 import moment from 'moment-timezone'
+import { confirmAlert } from 'react-confirm-alert'
 
 const RegisterCourse = () => {
   const [openDialog, setOpenDialog] = useState(false)
@@ -32,9 +33,14 @@ const RegisterCourse = () => {
   const [classCreditCode, setClassCreditCode] = useState('')
   const [openDialogTeacher, setOpenDialogTeacher] = useState(false)
   const [teachers, setTeachers] = useState([])
+  const [openDialogConfirm, setOpenDialogConfirm] = useState(false)
 
   if (!cookies.get('accses_token')) {
     window.location.href = '/login'
+  }
+
+  function handleOpenConfirm() {
+    setOpenDialogConfirm(true)
   }
 
   function getCurrentYearSemester() {
@@ -175,6 +181,9 @@ const RegisterCourse = () => {
     semesters.push(`HK1(${year}-${year + 1})`)
     semesters.push(`HK2(${year}-${year + 1})`)
   }
+  const handleCloseConfirm = () => {
+    setOpenDialogConfirm(false)
+  }
   const handleClose = () => {
     setOpenDialog(false)
   }
@@ -202,7 +211,6 @@ const RegisterCourse = () => {
         const res = await registerClassCredit(data)
         if (res.status === 200) {
           toast.success(res.data.message)
-          // reload page
           window.location.reload()
         } else {
           toast.error(res.data.message)
@@ -251,6 +259,26 @@ const RegisterCourse = () => {
           <span>Đăng ký học phần</span>
         </div>
         <Dialog
+          open={openDialogConfirm}
+          onClose={handleClose}
+          aria-labelledby='alert-dialog-title'
+          aria-describedby='alert-dialog-description'
+        >
+          <DialogContent>
+            <DialogContentText id='alert-dialog-description'>
+              Vui lòng xác nhận bạn chắc chắn đăng ký môn học này.
+            </DialogContentText>
+            <DialogContentText className='flex justify-center items-center text-red-500' id='alert-dialog-description'>
+              <span>(Học phần sẽ không được hủy sau khi đã đăng ký)</span>
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleRegisterClassCredit}>OK</Button>
+            <Button onClick={handleCloseConfirm}>Cancel</Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
           open={openDialog}
           onClose={handleClose}
           aria-labelledby='alert-dialog-title'
@@ -263,6 +291,7 @@ const RegisterCourse = () => {
             <Button onClick={handleClose}>OK</Button>
           </DialogActions>
         </Dialog>
+
         <Dialog
           open={openDialogTeacher}
           onClose={handleCloseDialogTeacher}
@@ -601,7 +630,7 @@ const RegisterCourse = () => {
                 <input
                   className='w-36 p-1 pl-2 pr-2 font-medium cursor-pointer bg-yellow-500 text-white active:bg-yellow-600 hover:bg-yellow-600'
                   type='button'
-                  onClick={handleRegisterClassCredit}
+                  onClick={handleOpenConfirm}
                   value='Đăng ký môn học'
                 />
               )}
