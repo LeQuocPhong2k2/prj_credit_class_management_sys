@@ -5,6 +5,7 @@
 /.pnp
 .pnp.js
 
+# không lấy no
 # testing
 /coverage
 
