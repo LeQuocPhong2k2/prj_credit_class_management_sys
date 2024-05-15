@@ -28,12 +28,6 @@ const TeacherSchema = new Schema({
     ref: "Department",
     required: true,
   },
-  courses: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Course",
-    },
-  ],
 });
 
 export default mongoose.model("Teacher", TeacherSchema);

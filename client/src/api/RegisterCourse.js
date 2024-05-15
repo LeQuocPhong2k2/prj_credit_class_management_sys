@@ -52,4 +52,62 @@ async function getClasCreditCourseCode(course_code) {
   )
   return res
 }
-export { getCourseNew, getCourseByStatus, getClasCreditCourseCode }
+
+async function findTeacherByID(teacher_id) {
+  const res = await axios.post(
+    'http://localhost:3003/teacher/findTeacherByID',
+    {
+      teacher_id: teacher_id
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + cookies.get('accses_token')
+      }
+    }
+  )
+  return res
+}
+
+async function getClassCreditDetailsByClassCode(class_code) {
+  const res = await axios.post(
+    'http://localhost:3003/class/getClassCreditDetailsByClassCode',
+    {
+      class_code: class_code
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + cookies.get('accses_token')
+      }
+    }
+  )
+  return res
+}
+
+async function registerClassCredit(data) {
+  const res = await axios.post(
+    'http://localhost:3003/student/registerClassCredit',
+    {
+      classCreditCode: data.classCreditCode,
+      group: data.group,
+      account_id: data.account_id
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + cookies.get('accses_token')
+      }
+    }
+  )
+  return res
+}
+
+export {
+  getCourseNew,
+  getCourseByStatus,
+  getClasCreditCourseCode,
+  findTeacherByID,
+  getClassCreditDetailsByClassCode,
+  registerClassCredit
+}

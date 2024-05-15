@@ -20,6 +20,7 @@
     "moment-timezone": "^0.5.45",
     "prettierrc": "^0.0.0-5",
     "react": "^18.2.0",
+    "react-confirm-alert": "^3.0.6",
     "react-dom": "^18.2.0",
     "react-google-recaptcha": "^3.1.0",
     "react-hot-toast": "^2.4.1",
