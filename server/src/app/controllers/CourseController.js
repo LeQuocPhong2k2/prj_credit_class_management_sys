@@ -115,28 +115,11 @@ class CourseController {
         },
         {
           $project: {
-            course: "$class.classCode.course",
-          },
-        },
-        {
-          $unwind: "$course",
-        },
-        {
-          $lookup: {
-            from: "courses",
-            localField: "course.prerequisites",
-            foreignField: "_id",
-            as: "course.prerequisites",
-          },
-        },
-        {
-          $project: {
-            _id: "$course._id",
-            courseCode: "$course.courseCode",
-            courseName: "$course.courseName",
-            courseCredit: "$course.credits",
-            elective: "$course.elective",
-            prerequisites: "$course.prerequisites.courseCode",
+            courseCode: "$class.classCode.course.courseCode",
+            courseName: "$class.classCode.course.courseName",
+            courseCredit: "$class.classCode.course.credits",
+            elective: "$class.classCode.course.elective",
+            prerequisites: "$class.classCode.course.prerequisites",
           },
         },
       ]);

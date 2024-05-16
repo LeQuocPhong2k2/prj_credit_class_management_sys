@@ -42,7 +42,6 @@ class StudentController {
         $project: {
           _id: 1,
           userName: 1,
-          mssv: 1,
           email: 1,
           dateOfBirth: 1,
           gender: 1,
@@ -116,7 +115,7 @@ class StudentController {
                 $push: {
                   class: {
                     classCode: classData._id,
-                    dateRegister: moment().tz("Asia/Ho_Chi_Minh").format("YYYY-MM-DD HH:mm:ss"),
+                    dateRegister: moment().tz("Asia/Ho_Chi_Minh").format("YYYY-MM-DD"),
                     mark: 0,
                     grank: 0,
                     status: "Đăng ký mới",

@@ -102,6 +102,22 @@ async function registerClassCredit(data) {
   )
   return res
 }
+async function getClasCreditCompleteRegistration(account_id, semester) {
+  const res = await axios.post(
+    'http://localhost:3003/class/getClasCreditCompleteRegistration',
+    {
+      account_id: account_id,
+      semester: semester
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + cookies.get('accses_token')
+      }
+    }
+  )
+  return res
+}
 
 export {
   getCourseNew,
@@ -109,5 +125,6 @@ export {
   getClasCreditCourseCode,
   findTeacherByID,
   getClassCreditDetailsByClassCode,
-  registerClassCredit
+  registerClassCredit,
+  getClasCreditCompleteRegistration
 }

@@ -52,7 +52,10 @@ const Home = () => {
       setUser(resultStudent.data.student[0])
 
       setCurrentSemester(getCurrentYearSemester())
-      const resultClassSemester = await findClassCredirBySemester(resultStudent.data.student[0]._id, currenSemester)
+      const resultClassSemester = await findClassCredirBySemester(
+        localStorage.getItem('account_id'),
+        getCurrentYearSemester()
+      )
       if (resultClassSemester.status !== 200) {
         setIsLoading(true)
         return
@@ -62,6 +65,7 @@ const Home = () => {
         setIsLoading(true)
         return
       }
+      setDsClass(resultClassSemester.data.class)
       setCreditTotal(resultCredit.data.creditTotal)
       setIsLoading(false)
     }
@@ -71,13 +75,12 @@ const Home = () => {
   useEffect(() => {
     setCurrentSemester(currenSemester)
     const fetchData = async () => {
-      if (user && user._id) {
-        const resultClassSemester = await findClassCredirBySemester(user._id, currenSemester)
-        setDsClass(resultClassSemester.data.class)
-      }
+      const resultClassSemester = await findClassCredirBySemester(localStorage.getItem('account_id'), currenSemester)
+
+      setDsClass(resultClassSemester.data.class)
     }
     fetchData()
-  }, [currenSemester, user])
+  }, [currenSemester])
 
   const DATA = [
     {
@@ -362,7 +365,7 @@ const Home = () => {
                     </div>
                   </div>
                   <div className='flex justify-end items-center'>
-                    <span>{course.courseCredit}</span>
+                    <span>{course.credits}</span>
                   </div>
                 </li>
               ))}

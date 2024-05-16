@@ -6,7 +6,8 @@ import {
   getCourseByStatus,
   getClasCreditCourseCode,
   getClassCreditDetailsByClassCode,
-  registerClassCredit
+  registerClassCredit,
+  getClasCreditCompleteRegistration
 } from '../../api/RegisterCourse'
 import { apiInforSv } from '../../api/Home'
 import { IoCloseCircleSharp } from 'react-icons/io5'
@@ -17,7 +18,6 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import Button from '@mui/material/Button'
 import moment from 'moment-timezone'
-import { confirmAlert } from 'react-confirm-alert'
 
 const RegisterCourse = () => {
   const [openDialog, setOpenDialog] = useState(false)
@@ -34,6 +34,7 @@ const RegisterCourse = () => {
   const [openDialogTeacher, setOpenDialogTeacher] = useState(false)
   const [teachers, setTeachers] = useState([])
   const [openDialogConfirm, setOpenDialogConfirm] = useState(false)
+  const [clasCreditCompleteRegistration, setClasCreditCompleteRegistration] = useState([])
 
   if (!cookies.get('accses_token')) {
     window.location.href = '/login'
@@ -86,6 +87,15 @@ const RegisterCourse = () => {
           return
         }
         setCourses(resCourse.data.courseNotClean)
+        const clasCreditCompleteRegistration = await getClasCreditCompleteRegistration(
+          localStorage.getItem('account_id'),
+          getCurrentYearSemester()
+        )
+        if (clasCreditCompleteRegistration.status !== 200) {
+          setLoading(true)
+          return
+        }
+        setClasCreditCompleteRegistration(clasCreditCompleteRegistration.data.class)
         setLoading(false)
       } catch (e) {
         setLoading(true)
@@ -442,13 +452,14 @@ const RegisterCourse = () => {
             <tbody className='text-color-cuorse text-base'>
               {courses.map((course, index) => (
                 <tr key={index}>
-                  <td>
+                  <td className='cursor-pointer'>
                     {courseCode === course.courseCode ? (
-                      <input type='radio' name='courseCode' checked />
+                      <input type='radio' name='courseCode' className='cursor-pointer' checked />
                     ) : (
                       <input
                         type='radio'
                         name='courseCode'
+                        className='cursor-pointer'
                         onChange={() => {
                           setCourseCode(course.courseCode)
                         }}
@@ -519,10 +530,11 @@ const RegisterCourse = () => {
                 )}
                 {classCourse.map((classCourse, index) => (
                   <tr key={index}>
-                    <td>
+                    <td className='cursor-pointer'>
                       <input
                         type='radio'
                         name='classCredit'
+                        className='cursor-pointer'
                         onChange={() => {
                           setClassCreditCode(classCourse.classCode)
                         }}
@@ -656,7 +668,38 @@ const RegisterCourse = () => {
                 <td>Ngày đăng ký</td>
               </thead>
               <tbody>
-                <tr>
+                {clasCreditCompleteRegistration === undefined || clasCreditCompleteRegistration.length === 0 ? (
+                  <tr>
+                    <td colSpan='9' className='text-center'>
+                      Không có lớp học phần nào
+                    </td>
+                  </tr>
+                ) : (
+                  clasCreditCompleteRegistration.map((classCredit, index) => (
+                    <tr>
+                      <td>{index + 1}</td>
+                      <td>{classCredit.classCode}</td>
+                      <td>{classCredit.className}</td>
+                      <td>{classCredit.expectedClass}</td>
+                      <td>{classCredit.credits}</td>
+                      <td>{classCredit.group}</td>
+                      <td>{classCredit.courseFee}</td>
+                      <td>
+                        <input
+                          className='w-4 h-4 text-orange-500 rounded-full'
+                          type='checkbox'
+                          checked
+                          disabled
+                          name=''
+                          id=''
+                        />
+                      </td>
+                      <td>{moment(classCredit.registerDate).format('YYYY-MM-DD')}</td>
+                    </tr>
+                  ))
+                )}
+
+                {/* <tr>
                   <td>1</td>
                   <td>4230002421</td>
                   <td>Giáo dục quốc phòng</td>
@@ -675,7 +718,7 @@ const RegisterCourse = () => {
                     />
                   </td>
                   <td>02/05/2024</td>
-                </tr>
+                </tr> */}
               </tbody>
             </table>
           </div>
