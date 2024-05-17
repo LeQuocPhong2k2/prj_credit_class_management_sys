@@ -106,6 +106,10 @@ const Home = () => {
     window.location.href = '/register-course'
   }
 
+  function handleDirectClassSchedule() {
+    window.location.href = '/class-schedule'
+  }
+
   const enrollmentYear = 2020
   const currentYear = new Date().getFullYear()
   const semesters = []
@@ -241,7 +245,10 @@ const Home = () => {
         </div>
       </div>
       <div className='grid grid-cols-8 mt-4'>
-        <div className='grid grid-rows-2 shadow shadow-gray-500 rounded-md mr-4 text-link cursor-pointer'>
+        <div
+          onClick={handleDirectClassSchedule}
+          className='grid grid-rows-2 shadow shadow-gray-500 rounded-md mr-4 text-link cursor-pointer'
+        >
           <div className='flex items-center justify-center text-3xl'>
             <IoCalendarNumberOutline />
           </div>
