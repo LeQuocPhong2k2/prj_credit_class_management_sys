@@ -11,6 +11,7 @@ root.render(
     {window.location.pathname === '' ||
     window.location.pathname === '/' ||
     window.location.pathname === '/home' ||
+    window.location.pathname === '/admin' ||
     window.location.pathname === '/register-course' ||
     window.location.pathname === '/class-schedule' ? (
       <Header />

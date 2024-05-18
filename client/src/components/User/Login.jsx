@@ -32,7 +32,6 @@ export default function Login() {
         setTimeout(() => {
           cookies.set('accses_token', res.data.token, { path: '/', maxAge: 60 * 60 * 24 }) // 24 hour
           localStorage.setItem('account_id', res.data.account_id)
-          window.location.href = '/'
         }, 1000)
       } else {
         toast.error('Đăng nhập thất bại')
