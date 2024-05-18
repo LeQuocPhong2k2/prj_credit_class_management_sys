@@ -22,6 +22,7 @@ class AccountController {
             message: "Login successful",
             account_id: account._id,
             token: token,
+            account_type: account.accountType,
           });
         } else {
           return res.status(404).json({ message: "Account not found" });
@@ -37,6 +38,16 @@ class AccountController {
     if (account) {
       const account_type = account.accountType;
       return res.status(200).json({ account_type: account_type });
+    } else {
+      return res.status(404).json({ message: "Account not found" });
+    }
+  }
+
+  async findAccountByID(req, res) {
+    const account_id = req.body.account_id;
+    const account = await Account.findOne({ _id: account_id });
+    if (account) {
+      return res.status(200).json({ account: account });
     } else {
       return res.status(404).json({ message: "Account not found" });
     }

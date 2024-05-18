@@ -4,14 +4,25 @@ import avatar from '../assets/avata-sv.jpg'
 import { useEffect, useState } from 'react'
 import 'react-toastify/dist/ReactToastify.css'
 import { apiInforSv } from '../api/Home'
+import { findAccountByID } from '../api/Login'
 
 const Header = () => {
   const [user, setUser] = useState(null)
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await apiInforSv(localStorage.getItem('account_id'))
-      setUser(res.data.student[0])
+      const resAccount = await findAccountByID(localStorage.getItem('account_id'))
+      if (resAccount.status === 200) {
+        if (resAccount.data.account.accountType === 'student') {
+          const res = await apiInforSv(localStorage.getItem('account_id'))
+          setUser(res.data.student[0])
+        } else {
+          const admin = {
+            userName: resAccount.data.account.userCode
+          }
+          setUser(admin)
+        }
+      }
     }
     fetchData()
   }, [])

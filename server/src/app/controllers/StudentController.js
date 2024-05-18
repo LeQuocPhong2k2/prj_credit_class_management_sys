@@ -156,5 +156,34 @@ class StudentController {
       }
     } catch (error) {}
   }
+
+  async getClassSchedule(req, res) {
+    const account_id = req.body.account_id;
+    const studentData = await Student.aggregate([
+      {
+        $match: {
+          account_id: new ObjectId(account_id),
+        },
+      },
+      {
+        $unwind: "$class",
+      },
+      {
+        $match: {
+          "class.status": "Đăng ký mới",
+        },
+      },
+      {
+        $lookup: {
+          from: "class",
+          localField: "class.classCode",
+          foreignField: "_id",
+          as: "classDetail",
+        },
+      },
+    ]);
+
+    res.status(200).json({ message: "Get class schedule successfully!!!", classSchedule: studentData });
+  }
 }
 export default new StudentController();

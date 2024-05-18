@@ -32,4 +32,19 @@ async function checkAccountType(account_id) {
   return res
 }
 
-export { login, checkAccountType }
+async function findAccountByID(account_id) {
+  const res = await axios.post(
+    'http://localhost:3003/account/findAccountByID',
+    {
+      account_id: account_id
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+  )
+  return res
+}
+
+export { login, checkAccountType, findAccountByID }

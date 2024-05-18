@@ -9,6 +9,7 @@
     "@fullcalendar/core": "^6.1.11",
     "@fullcalendar/daygrid": "^6.1.11",
     "@fullcalendar/react": "^6.1.11",
+    "@fullcalendar/rrule": "^6.1.11",
     "@garvae/react-pie-chart": "^1.1.5-deprecated",
     "@mui/material": "^5.15.17",
     "@testing-library/jest-dom": "^5.14.1",
@@ -35,6 +36,7 @@
     "react-router-dom": "^6.23.0",
     "react-scripts": "5.0.1",
     "react-toastify": "^10.0.5",
+    "rrule": "^2.8.1",
     "tailwindcss": "^3.4.3",
     "toastify-react": "^4.3.1",
     "web-vitals": "^2.1.0"
