@@ -158,7 +158,7 @@ const RegisterCourse = () => {
     setClassCreditDetail([])
     const fetchDataClasCourse = async () => {
       try {
-        const resclassCredit = await getClasCreditCourseCode(courseCode)
+        const resclassCredit = await getClasCreditCourseCode(courseCode, currenSemester)
         if (resclassCredit.status === 200) {
           setClassCourse(resclassCredit.data.classCredit)
         }
@@ -167,7 +167,7 @@ const RegisterCourse = () => {
       }
     }
     fetchDataClasCourse()
-  }, [courseCode])
+  }, [courseCode, currenSemester])
 
   useEffect(() => {
     const fetchDataClasCourse = async () => {

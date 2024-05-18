@@ -22,4 +22,5 @@ import StudentController from "../app/controllers/StudentController.js";
 router.post("/findStudentByAccountID", verifyToken, StudentController.findStudentByAccountID);
 router.post("/getCreditsByAccountID", verifyToken, StudentController.getCreditsByAccountID);
 router.post("/registerClassCredit", verifyToken, StudentController.registerClassCredit);
+router.post("/getClassSchedule", verifyToken, StudentController.getClassSchedule);
 export default router;

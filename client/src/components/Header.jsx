@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import 'react-toastify/dist/ReactToastify.css'
 import { apiInforSv } from '../api/Home'
 import { checkAccountType } from '../api/Login'
+import { findAccountByID } from '../api/Login'
 
 const Header = () => {
   const [user, setUser] = useState(null)
@@ -15,11 +16,21 @@ const Header = () => {
     //   const res = await checkAccountType(localStorage.getItem('account_id'))
     //   alert(res.data.account_type)
     // }
-    // const fetchData = async () => {
-    //   const res = await apiInforSv(localStorage.getItem('account_id'))
-    //   setUser(res.data.student[0])
-    // }
     // checkAccountType()
+    // const fetchData = async () => {
+    //   const resAccount = await findAccountByID(localStorage.getItem('account_id'))
+    //   if (resAccount.status === 200) {
+    //     if (resAccount.data.account.accountType === 'student') {
+    //       const res = await apiInforSv(localStorage.getItem('account_id'))
+    //       setUser(res.data.student[0])
+    //     } else {
+    //       const admin = {
+    //         userName: resAccount.data.account.userCode
+    //       }
+    //       setUser(admin)
+    //     }
+    //   }
+    // }
     // fetchData()
   }, [])
 

@@ -37,11 +37,12 @@ async function getCourseByStatus(account_id, status) {
   return res
 }
 
-async function getClasCreditCourseCode(course_code) {
+async function getClasCreditCourseCode(course_code, semesters) {
   const res = await axios.post(
     'http://localhost:3003/class/getClasCreditCourseCode',
     {
-      course_code: course_code
+      course_code: course_code,
+      semesters: semesters
     },
     {
       headers: {

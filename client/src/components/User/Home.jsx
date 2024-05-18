@@ -302,8 +302,8 @@ const Home = () => {
       <div className='grid grid-flow-col mt-4'>
         <div className='grid grid-rows-10 shadow shadow-gray-500 rounded-md p-4 mr-4 h-64'>
           <div className='grid grid-cols-2'>
-            <div className='row-span-1 font-bold text-left'>
-              <h1>Kết quả học tập</h1>
+            <div className='row-span-1 font-bold text-left text-lg'>
+              <span>Kết quả học tập</span>
             </div>
             <div className='flex justify-end'>
               <select name='' id='' className='h-9 text-sm'>
@@ -317,20 +317,20 @@ const Home = () => {
           </div>
         </div>
         <div className='grid grid-rows-10 shadow shadow-gray-500 rounded-md p-4 mr-4 h-64'>
-          <div className='row-span-1 font-bold text-left'>
-            <h1>Tiến độ học tập</h1>
+          <div className='row-span-1 font-bold text-left text-lg'>
+            <span>Tiến độ học tập</span>
           </div>
-          <div className='row-span-7 relative items-center flex justify-center' ref={ref}>
+          <div className='row-span-7 relative items-center flex justify-center text-lg pt-4' ref={ref}>
             <ChartPie text={Math.round((creditTotal / 156) * 100) + '%'} data={DATA} parentRef={ref} />
           </div>
-          <div className='font-bold text-black'>
-            <h1>{creditTotal + '/' + 156}</h1>
+          <div className='font-bold text-black pt-4'>
+            <span>{creditTotal + '/' + 156}</span>
           </div>
         </div>
         <div className='grid grid-rows-10 shadow shadow-gray-500 rounded-md p-4 h-64'>
           <div className='row-span-2 grid grid-cols-2 text-left border-b-2'>
-            <div className='row-span-1 font-bold text-left'>
-              <h1>Lớp học phần</h1>
+            <div className='row-span-1 font-bold text-left text-lg'>
+              <span>Lớp học phần</span>
             </div>
             <div className='h-fit flex justify-end w-full'>
               <select

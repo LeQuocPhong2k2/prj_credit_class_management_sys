@@ -1,9 +1,9 @@
-import express from 'express'
-const router = express.Router()
+import express from "express";
+const router = express.Router();
 
-import AccountController from '../app/controllers/AccountController.js'
+import AccountController from "../app/controllers/AccountController.js";
 
-router.post('/login', AccountController.login)
-// api check checkAccountType
-router.post('/checkAccountType', AccountController.checkAccountType)
-export default router
+router.post("/login", AccountController.login);
+router.post("/checkAccountType", AccountController.checkAccountType);
+router.post("/findAccountByID", AccountController.findAccountByID);
+export default router;
