@@ -110,6 +110,10 @@ const Home = () => {
     window.location.href = '/class-schedule'
   }
 
+  function handleDirectCleaningResult() {
+    window.location.href = '/learning-result'
+  }
+
   const enrollmentYear = 2020
   const currentYear = new Date().getFullYear()
   const semesters = []
@@ -148,14 +152,11 @@ const Home = () => {
     )
   }
 
-  //moment -> birthday 2002-04-17
-  // const birthday = moment('2002-04-17').format('DD-MM-YYYY')
-
   return (
-    <div className='grid grid-rows-3 pl-40 pr-40 pt-4 text-color-wrapper'>
-      <div className='row-span-2 grid grid-cols-3 bg-white'>
-        <div className='col-span-2 grid grid-rows-5 shadow shadow-gray-500 rounded-md p-4'>
-          <div className='flex justify-start border-b-2 border-b-gray-200'>
+    <div className='grid grid-rows-3 pl-40 pr-40 pt-20 text-color-wrapper'>
+      <div className='row-span-2 grid grid-cols-3'>
+        <div className='col-span-2 grid grid-rows-5 rounded-md p-4 bg-white shadow-sm'>
+          <div className='flex justify-start border-b-2'>
             <span className='font-bold text-lg'>Thông tin sinh viên</span>
           </div>
           <div className='row-span-4 grid grid-cols-3 pt-4'>
@@ -213,7 +214,7 @@ const Home = () => {
           </div>
         </div>
         <div className='ml-4 grid grid-rows-2'>
-          <div className='shadow shadow-gray-500 rounded-md grid grid-rows-3 text-sm pt-2'>
+          <div className='bg-white shadow-sm rounded-md grid grid-rows-3 text-sm pt-2'>
             <div className='flex justify-start pl-4'>
               <span>Nhắc nhở mới,chưa xem</span>
             </div>
@@ -223,7 +224,7 @@ const Home = () => {
             </div>
           </div>
           <div className='grid grid-cols-2 pt-4'>
-            <div className='shadow shadow-gray-500 rounded-md grid grid-rows-3 text-sm bg-lich-hoc mr-2 pt-2'>
+            <div className='shadow-sm rounded-md grid grid-rows-3 text-sm bg-lich-hoc mr-2 pt-2'>
               <div className='flex justify-start pl-4'>
                 <span>Lịch học trong tuần</span>
               </div>
@@ -232,7 +233,7 @@ const Home = () => {
                 <span>Xem chi tiết</span>
               </div>
             </div>
-            <div className='shadow shadow-gray-500 rounded-md grid grid-rows-3 text-sm bg-lich-thi ml-2 pt-2'>
+            <div className='shadow-sm rounded-md grid grid-rows-3 text-sm bg-lich-thi ml-2 pt-2'>
               <div className='flex justify-start pl-4'>
                 <span>Lịch thi trong tuần</span>
               </div>
@@ -247,20 +248,22 @@ const Home = () => {
       <div className='grid grid-cols-8 mt-4'>
         <div
           onClick={handleDirectClassSchedule}
-          className='grid grid-rows-2 shadow shadow-gray-500 rounded-md mr-4 text-link cursor-pointer'
+          className='grid grid-rows-2 bg-white shadow-sm rounded-md mr-4 text-link cursor-pointer'
         >
           <div className='flex items-center justify-center text-3xl'>
             <IoCalendarNumberOutline />
           </div>
           <span className='text-sm'>Lịch học theo tuần</span>
         </div>
-        <div className='grid grid-rows-2 shadow shadow-gray-500 rounded-md mr-4 text-link cursor-pointer'>
+        <div className='grid grid-rows-2 bg-white shadow-sm rounded-md mr-4 text-link cursor-pointer'>
           <div className='flex items-center justify-center text-3xl'>
             <TfiBarChart />
           </div>
-          <span className='text-sm'>Kết quả học tập</span>
+          <span className='text-sm hover:text-gray-500' onClick={handleDirectCleaningResult}>
+            Kết quả học tập
+          </span>
         </div>
-        <div className='grid grid-rows-2 shadow shadow-gray-500 rounded-md mr-4 text-link cursor-pointer'>
+        <div className='grid grid-rows-2 bg-white shadow-sm rounded-md mr-4 text-link cursor-pointer'>
           <div className='flex items-center justify-center text-3xl'>
             <FiLayers />
           </div>
@@ -268,31 +271,31 @@ const Home = () => {
             Đăng ký học phần
           </span>
         </div>
-        <div className='grid grid-rows-2 shadow shadow-gray-500 rounded-md mr-4 text-link cursor-pointer'>
+        <div className='grid grid-rows-2 bg-white shadow-sm rounded-md mr-4 text-link cursor-pointer'>
           <div className='flex items-center justify-center text-3xl'>
             <MdOutlineAttachMoney />
           </div>
           <span className='text-sm'>Tra cứu công nợ</span>
         </div>
-        <div className='grid grid-rows-2 shadow shadow-gray-500 rounded-md mr-4 text-link cursor-pointer'>
+        <div className='grid grid-rows-2 bg-white shadow-sm rounded-md mr-4 text-link cursor-pointer'>
           <div className='flex items-center justify-center text-3xl'>
             <FaFileInvoiceDollar />
           </div>
           <span className='text-sm'>Thanh toán trực tuyến</span>
         </div>
-        <div className='grid grid-rows-2 shadow shadow-gray-500 rounded-md mr-4 text-link cursor-pointer'>
+        <div className='grid grid-rows-2 bg-white shadow-sm rounded-md mr-4 text-link cursor-pointer'>
           <div className='flex items-center justify-center text-3xl'>
             <FaFileLines />
           </div>
           <span className='text-sm'>Phiếu thu tổng hợp</span>
         </div>
-        <div className='grid grid-rows-2 shadow shadow-gray-500 rounded-md mr-4 text-link cursor-pointer'>
+        <div className='grid grid-rows-2 bg-white shadow-sm rounded-md mr-4 text-link cursor-pointer'>
           <div className='flex items-center justify-center text-3xl'>
             <GrCalendar />
           </div>
           <span className='text-sm'>Lịch theo tiến độ</span>
         </div>
-        <div className='grid grid-rows-2 shadow shadow-gray-500 rounded-md text-link cursor-pointer'>
+        <div className='grid grid-rows-2 bg-white shadow-sm rounded-md text-link cursor-pointer'>
           <div className='flex items-center justify-center text-3xl'>
             <PiBagSimple />
           </div>
@@ -300,7 +303,7 @@ const Home = () => {
         </div>
       </div>
       <div className='grid grid-flow-col mt-4'>
-        <div className='grid grid-rows-10 shadow shadow-gray-500 rounded-md p-4 mr-4 h-64'>
+        <div className='grid grid-rows-10 bg-white shadow-sm rounded-md p-4 mr-4 h-64'>
           <div className='grid grid-cols-2'>
             <div className='row-span-1 font-bold text-left text-lg'>
               <span>Kết quả học tập</span>
@@ -316,7 +319,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-        <div className='grid grid-rows-10 shadow shadow-gray-500 rounded-md p-4 mr-4 h-64'>
+        <div className='grid grid-rows-10 bg-white shadow-sm rounded-md p-4 mr-4 h-64'>
           <div className='row-span-1 font-bold text-left text-lg'>
             <span>Tiến độ học tập</span>
           </div>
@@ -327,7 +330,7 @@ const Home = () => {
             <span>{creditTotal + '/' + 156}</span>
           </div>
         </div>
-        <div className='grid grid-rows-10 shadow shadow-gray-500 rounded-md p-4 h-64'>
+        <div className='grid grid-rows-10 bg-white shadow-sm rounded-md p-4 h-64'>
           <div className='row-span-2 grid grid-cols-2 text-left border-b-2'>
             <div className='row-span-1 font-bold text-left text-lg'>
               <span>Lớp học phần</span>

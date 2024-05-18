@@ -92,7 +92,8 @@ async function registerClassCredit(data) {
     {
       classCreditCode: data.classCreditCode,
       group: data.group,
-      account_id: data.account_id
+      account_id: data.account_id,
+      courseCode: data.courseCode
     },
     {
       headers: {

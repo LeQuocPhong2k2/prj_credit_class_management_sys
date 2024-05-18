@@ -114,6 +114,9 @@ class CourseController {
           },
         },
         {
+          $unwind: "$class.classCode.course",
+        },
+        {
           $project: {
             courseCode: "$class.classCode.course.courseCode",
             courseName: "$class.classCode.course.courseName",

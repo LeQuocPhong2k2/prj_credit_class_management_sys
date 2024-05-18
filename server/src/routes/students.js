@@ -23,4 +23,5 @@ router.post("/findStudentByAccountID", verifyToken, StudentController.findStuden
 router.post("/getCreditsByAccountID", verifyToken, StudentController.getCreditsByAccountID);
 router.post("/registerClassCredit", verifyToken, StudentController.registerClassCredit);
 router.post("/getClassSchedule", verifyToken, StudentController.getClassSchedule);
+router.post("/getLearningResult", verifyToken, StudentController.getLearningResult);
 export default router;

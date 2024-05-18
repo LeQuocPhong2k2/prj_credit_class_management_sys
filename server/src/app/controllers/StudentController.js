@@ -101,89 +101,250 @@ class StudentController {
     const classCreditCode = req.body.classCreditCode;
     const group = req.body.group;
     const account_id = req.body.account_id;
-
+    const courseCode = req.body.courseCode;
     try {
+      //check student exist
+      const studentExist = await Student.findOne({ account_id: new ObjectId(account_id) });
+      if (!studentExist) {
+        res.status(200).json({ message: "ERR_404_STUDENT" });
+        return;
+      }
+      //check class credit exist
+      const classCreditCodeExist = await Class.find({ classCode: classCreditCode });
+      if (classCreditCodeExist.length === 0) {
+        res.status(200).json({ message: "ERR_404_CLASS" });
+        return;
+      }
+      //check student exist in class list
+      const studentExistInClass = await Class.aggregate([
+        {
+          $match: {
+            classCode: classCreditCode,
+            currentStudents: new ObjectId(studentExist._id),
+          },
+        },
+      ]);
+      if (studentExistInClass.length > 0) {
+        res.status(200).json({ message: "ERR_500_EXISTCLASS" });
+        return;
+      }
+      //check môn tiên quyết có học chưa
+      let numPrerequisite = 0;
+      let numPrerequisiteComplete = 0;
+      const coursePrerequisite = await Course.findOne({ courseCode: courseCode });
+      const promiseArray = coursePrerequisite.prerequisites.map(async (e) => {
+        numPrerequisite++;
+        const coursePrerequisiteExist = await Student.aggregate([
+          {
+            $match: {
+              account_id: new ObjectId(account_id),
+            },
+          },
+          {
+            $unwind: "$class",
+          },
+          {
+            $match: {
+              "class.status": "Hoàn thành",
+            },
+          },
+          {
+            $lookup: {
+              from: "class",
+              localField: "class.classCode",
+              foreignField: "_id",
+              as: "classCredit",
+            },
+          },
+          {
+            $unwind: "$classCredit",
+          },
+          {
+            $match: {
+              "classCredit.course": e,
+            },
+          },
+        ]);
+        if (coursePrerequisiteExist.length > 0) {
+          numPrerequisiteComplete++;
+        }
+        return numPrerequisiteComplete;
+      });
+
+      const resultData = await Promise.all(promiseArray);
+
+      if (numPrerequisite !== numPrerequisiteComplete) {
+        res.status(200).json({ message: "ERR_500_PREREQUISITE", data: coursePrerequisite });
+        return;
+      }
+
+      //register class credit
       const studentData = await Student.findOne({ account_id: account_id });
       if (studentData) {
         const classData = await Class.findOne({ classCode: classCreditCode });
         if (classData) {
-          const course = await Course.findOne({ _id: classData.course });
-          if (course) {
-            const student = await Student.findOneAndUpdate(
-              { account_id: account_id },
+          const student = await Student.findOneAndUpdate(
+            { account_id: account_id },
+            {
+              $push: {
+                class: {
+                  classCode: classData._id,
+                  dateRegister: moment().tz("Asia/Ho_Chi_Minh").format("YYYY-MM-DD"),
+                  mark: 0,
+                  grank: 0,
+                  status: "Đăng ký mới",
+                  group: group,
+                },
+              },
+            }
+          );
+          if (classData.currentStudents.length >= classData.maxStudents) {
+            const updateClass = await Class.findOneAndUpdate(
+              { classCode: classCreditCode },
               {
                 $push: {
-                  class: {
-                    classCode: classData._id,
-                    dateRegister: moment().tz("Asia/Ho_Chi_Minh").format("YYYY-MM-DD"),
-                    mark: 0,
-                    grank: 0,
-                    status: "Đăng ký mới",
-                    group: group,
-                  },
+                  waitlist: student._id,
                 },
               }
             );
-            if (classData.currentStudents.length >= classData.maxStudents) {
-              // Nếu lớp đã đủ số lượng sinh viên thì lưu vào waitingList
-              const updateClass = await Class.findOneAndUpdate(
-                { classCode: classCreditCode },
-                {
-                  $push: {
-                    waitlist: student._id,
-                  },
-                }
-              );
-              res.status(200).json({ message: "Class full save wating list" });
-            } else {
-              const updateClass = await Class.findOneAndUpdate(
-                { classCode: classCreditCode },
-                {
-                  $push: {
-                    // cập nhật currentStudents: Array objectId
-                    currentStudents: student._id,
-                  },
-                }
-              );
-              res.status(200).json({ message: "Register class credit successfully!!!" });
-            }
+            res.status(200).json({ message: "Class full save wating list" });
           } else {
-            res.status(404).json({ message: "Course not found!!!" });
+            const updateClass = await Class.findOneAndUpdate(
+              { classCode: classCreditCode },
+              {
+                $push: {
+                  currentStudents: student._id,
+                },
+              }
+            );
+            res.status(200).json({ message: "Register class credit successfully!!!" });
           }
         } else {
           res.status(404).json({ message: "Class not found!!!" });
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      res.status(500).json({ message: "Error occurred while fetching data!" });
+    }
   }
 
   async getClassSchedule(req, res) {
     const account_id = req.body.account_id;
-    const studentData = await Student.aggregate([
-      {
-        $match: {
-          account_id: new ObjectId(account_id),
+    try {
+      const studentData = await Student.aggregate([
+        {
+          $match: {
+            account_id: new ObjectId(account_id),
+          },
         },
-      },
-      {
-        $unwind: "$class",
-      },
-      {
-        $match: {
-          "class.status": "Đăng ký mới",
+        {
+          $unwind: "$class",
         },
-      },
-      {
-        $lookup: {
-          from: "class",
-          localField: "class.classCode",
-          foreignField: "_id",
-          as: "classDetail",
+        {
+          $lookup: {
+            from: "class",
+            localField: "class.classCode",
+            foreignField: "_id",
+            as: "classDetail",
+          },
         },
-      },
-    ]);
+        {
+          $unwind: "$classDetail",
+        },
+        {
+          $project: {
+            _id: 0,
+            classCode: "$classDetail.classCode",
+            className: "$classDetail.className",
+            startTime: "$classDetail.time.startTime",
+            endTime: "$classDetail.time.endTime",
+            classDetails: "$classDetail.classDetails",
+          },
+        },
+        {
+          $unwind: "$classDetails",
+        },
+        {
+          $lookup: {
+            from: "teachers",
+            localField: "classDetails.teacher",
+            foreignField: "_id",
+            as: "instructor",
+          },
+        },
+        {
+          $project: {
+            classCode: 1,
+            className: 1,
+            startTime: 1,
+            endTime: 1,
+            classDetails: 1,
+            teacher: { $arrayElemAt: ["$instructor", 0] },
+          },
+        },
+      ]);
 
-    res.status(200).json({ message: "Get class schedule successfully!!!", classSchedule: studentData });
+      if (studentData.length === 0) {
+        res.status(404).json({ message: "Student not found!!!" });
+      } else {
+        res.status(200).json({ message: "Get class schedule successfully!!!", classSchedule: studentData });
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({ message: "Error occurred while fetching data!" });
+    }
+  }
+
+  async getLearningResult(req, res) {
+    const account_id = req.body.account_id;
+    try {
+      const studentData = await Student.aggregate([
+        {
+          $match: {
+            account_id: new ObjectId(account_id),
+          },
+        },
+        {
+          $unwind: "$class",
+        },
+        {
+          $match: {
+            "class.status": "Hoàn thành",
+          },
+        },
+        {
+          $lookup: {
+            from: "class",
+            localField: "class.classCode",
+            foreignField: "_id",
+            as: "classDetail",
+          },
+        },
+        {
+          $unwind: "$classDetail",
+        },
+        {
+          $group: {
+            _id: "$classDetail.semester",
+            classCredit: { $push: "$$ROOT" },
+          },
+        },
+        {
+          $sort: {
+            _id: 1,
+          },
+        },
+      ]);
+
+      if (studentData.length === 0) {
+        res.status(404).json({ message: "Student not found!!!" });
+      } else {
+        res.status(200).json({ message: "Get learning result successfully!!!", learningResult: studentData });
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({ message: "Error occurred while fetching data!" });
+    }
   }
 }
 export default new StudentController();

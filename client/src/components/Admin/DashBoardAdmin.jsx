@@ -17,12 +17,14 @@ import Cookies from 'cookie-universal'
 export default function DashBoardAdmin() {
   const cookies = Cookies()
   const [numClasses, setNumClasses] = useState(1)
+  const [currenSemester, setCurrentSemester] = useState()
 
   if (!cookies.get('accses_token')) {
     window.location.href = '/login'
   }
 
   useEffect(() => {
+    setCurrentSemester(getCurrentYearSemester())
     const fetchAccountType = async () => {
       try {
         const response = await checkAccountType(localStorage.getItem('account_id'))
@@ -190,11 +192,23 @@ export default function DashBoardAdmin() {
     setClassDetails(details)
     setShow(true)
   }
+  function getCurrentYearSemester() {
+    const currentYear = new Date().getFullYear()
+    const currentMonth = new Date().getMonth() + 1
+
+    const currentYearSemester =
+      currentMonth >= 1 && currentMonth <= 6
+        ? `HK2(${currentYear - 1}-${currentYear})`
+        : `HK1(${currentYear}-${currentYear + 1})`
+
+    return currentYearSemester
+  }
+
   return (
-    <div>
-      <Tabs defaultActiveKey='profile' id='uncontrolled-tab-example' className='mb-3'>
+    <div className='p-4 bg-white'>
+      <Tabs defaultActiveKey='profile' id='uncontrolled-tab-example' className='p-2 bg-white mt-10'>
         <Tab eventKey='home' title='Home'>
-          <Container>
+          <Container className='bg-white'>
             <ToastContainer duration={3500} />
             <Row>
               <h3

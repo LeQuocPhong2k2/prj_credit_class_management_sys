@@ -5,6 +5,13 @@
 body {
   font-family: Tahoma !important;
 }
+#root {
+  background-color: #e7ecf0;
+  height: 100vh;
+}
+.h-88vh {
+  height: 88vh;
+}
 .border-1px {
   border: 1px solid #e0e0e0;
 }

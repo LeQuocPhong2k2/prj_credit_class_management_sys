@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Toaster, toast } from 'react-hot-toast'
+import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import {
   getCourseNew,
@@ -35,6 +35,7 @@ const RegisterCourse = () => {
   const [teachers, setTeachers] = useState([])
   const [openDialogConfirm, setOpenDialogConfirm] = useState(false)
   const [clasCreditCompleteRegistration, setClasCreditCompleteRegistration] = useState([])
+  const [creditOnclik, setCreditOnclik] = useState(0)
 
   if (!cookies.get('accses_token')) {
     window.location.href = '/login'
@@ -48,12 +49,20 @@ const RegisterCourse = () => {
     const currentYear = new Date().getFullYear()
     const currentMonth = new Date().getMonth() + 1
 
-    const currentYearSemester =
-      currentMonth >= 1 && currentMonth <= 6
-        ? `HK2(${currentYear - 1}-${currentYear})`
-        : `HK1(${currentYear}-${currentYear + 1})`
+    // const currentYearSemester =
+    //   currentMonth >= 1 && currentMonth <= 6
+    //     ? `HK2(${currentYear - 1}-${currentYear})`
+    //     : `HK1(${currentYear}-${currentYear + 1})`
 
-    return currentYearSemester
+    // HỌC KỲ ĐĂNG KÝ PHẢI LƠN HƠN KỲ HIỆN TẠI -> GET HỌC KỲ SAU KỲ HIỆN TẠI
+    if (currentMonth >= 1 && currentMonth <= 6) {
+      return `HK1(${currentYear}-${currentYear + 1})`
+    }
+    if (currentMonth >= 7 && currentMonth <= 12) {
+      return `HK2(${currentYear}-${currentYear + 1})`
+    }
+
+    //return currentYearSemester
   }
 
   function handleSelectSemester(semester) {
@@ -214,28 +223,61 @@ const RegisterCourse = () => {
     const data = {
       account_id: localStorage.getItem('account_id'),
       classCreditCode: classCreditCode,
-      group: group.value
+      group: group.value,
+      courseCode: courseCode
     }
     const fetchData = async () => {
       try {
         const res = await registerClassCredit(data)
-        if (res.status === 200) {
-          toast.success(res.data.message)
-          window.location.reload()
+        if (res.status === 200 && res.data.message === 'ERR_404_STUDENT') {
+          toast.error('Sinh viên không tồn tại')
+          return
+        } else if (res.status === 200 && res.data.message === 'ERR_404_CLASS') {
+          toast.error('Lớp học phần không tồn tại')
+          return
+        } else if (res.status === 200 && res.data.message === 'ERR_500_EXISTCLASS') {
+          toast.error('Bạn đã đăng ký lớp học phần này rồi')
+          return
+        } else if (res.status === 200 && res.data.message === 'ERR_500_PREREQUISITE') {
+          toast.error('Môn học tiên quyết chưa học')
+          return
         } else {
-          toast.error(res.data.message)
+          toast.success(res.data.message)
+          setTimeout(() => {
+            window.location.reload()
+          }, 1000)
         }
       } catch (error) {
+        toast.error('Đăng ký thất bại')
         return
       }
     }
+    if (!handleCountCredit()) {
+      setOpenDialogConfirm(false)
+      toast.error('Số tín chỉ đăng ký vượt quá 30 tín chỉ')
+      return
+    }
+
     fetchData()
+    setOpenDialogConfirm(false)
+  }
+
+  function handleCountCredit() {
+    if (clasCreditCompleteRegistration && clasCreditCompleteRegistration.length > 0) {
+      const credits = clasCreditCompleteRegistration.reduce((total, current) => total + current.credits, 0)
+      console.log(credits)
+      if (credits + creditOnclik > 30) {
+        return false
+      }
+    } else {
+      return true
+    }
   }
 
   if (loading) {
     return (
       <div className='flex justify-center items-center h-screen'>
-        <Toaster toastOptions={{ duration: 2200 }} />
+        <ToastContainer duration={3500} />
         <div class='flex items-center justify-center w-56 h-56'>
           <div role='status'>
             <svg
@@ -262,9 +304,9 @@ const RegisterCourse = () => {
   }
 
   return (
-    <div className='grid grid-flow-row pl-40 pr-40 pt-4 text-color-wrapper'>
-      <Toaster toastOptions={{ duration: 2200 }} />
-      <div className='grid gap-2 shadow shadow-gray-500 rounded-md p-4'>
+    <div className='grid grid-flow-row pl-40 pr-40 pt-20 text-color-wrapper'>
+      <ToastContainer duration={3500} />
+      <div className='grid gap-2 bg-white shadow-sm rounded-md p-4 h-88vh overflow-y-scroll'>
         <div className='flex justify-start items-center font-bold text-lg border-b-2'>
           <span>Đăng ký học phần</span>
         </div>
@@ -462,6 +504,7 @@ const RegisterCourse = () => {
                         className='cursor-pointer'
                         onChange={() => {
                           setCourseCode(course.courseCode)
+                          setCreditOnclik(course.courseCredit)
                         }}
                       />
                     )}
@@ -490,7 +533,11 @@ const RegisterCourse = () => {
                   </td>
                   <td>
                     {course.prerequisites.map((prerequisite, index) =>
-                      index !== course.prerequisites.length - 1 ? prerequisite + '(a), ' : prerequisite + '(a)'
+                      index !== course.prerequisites.length - 1
+                        ? prerequisite + '(a), '
+                        : prerequisite.length === 0
+                        ? ''
+                        : prerequisite + '(a)'
                     )}
                   </td>
                 </tr>
@@ -537,6 +584,7 @@ const RegisterCourse = () => {
                         className='cursor-pointer'
                         onChange={() => {
                           setClassCreditCode(classCourse.classCode)
+                          classCourse.status === 'Đã khóa' && setClassCreditCode('')
                         }}
                       />
                     </td>
@@ -546,7 +594,7 @@ const RegisterCourse = () => {
                     <td>{classCourse.expectedClass + ' - ' + classCourse.classCode}</td>
                     <td>{classCourse.maxStudents}</td>
                     <td>{classCourse.currentStudents.length}</td>
-                    <td>Chờ sinh viên đăng ký</td>
+                    <td>{classCourse.status}</td>
                   </tr>
                 ))}
               </tbody>
