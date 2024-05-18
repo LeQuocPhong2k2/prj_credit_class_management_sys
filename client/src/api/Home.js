@@ -20,11 +20,11 @@ async function apiInforSv(userCode) {
   return res
 }
 
-async function findClassCredirBySemester(student_id, semester) {
+async function findClassCredirBySemester(account_id, semester) {
   const res = await axios.post(
     'http://localhost:3003/class/findClassCredirBySemester',
     {
-      student_id: student_id,
+      account_id: account_id,
       semester: semester
     },
     {

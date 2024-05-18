@@ -30,21 +30,57 @@ class ClassController {
   //get class by học kỳ và sinh viên
   async getClasCreditBySemesterAndCurrentSV(req, res) {
     const semester = req.body.semester;
-    const student_id = req.body.student_id;
+    const account_id = req.body.account_id;
     let classDataBySemester = [];
 
     try {
-      const classData = await Class.find({ semester: semester, currentStudents: student_id });
+      const classData = await Student.aggregate([
+        {
+          $match: {
+            account_id: new ObjectId(account_id),
+          },
+        },
+        {
+          $unwind: "$class",
+        },
+        {
+          $lookup: {
+            from: "class",
+            localField: "class.classCode",
+            foreignField: "_id",
+            as: "classes",
+          },
+        },
+        {
+          $unwind: "$classes",
+        },
+        {
+          $match: {
+            "classes.semester": semester,
+          },
+        },
+        {
+          $lookup: {
+            from: "courses",
+            localField: "classes.course",
+            foreignField: "_id",
+            as: "course",
+          },
+        },
+        {
+          $unwind: "$course",
+        },
+        {
+          $project: {
+            courseCode: "$course.courseCode",
+            courseName: "$course.courseName",
+            credits: "$course.credits",
+            credits: "$course.credits",
+          },
+        },
+      ]);
 
-      if (classData.length > 0) {
-        const promises = classData.map(async (e) => {
-          const course = await Course.findOne({ _id: e.course });
-          return { courseCode: course.courseCode, courseName: course.courseName, courseCredit: course.credits };
-        });
-        classDataBySemester = await Promise.all(promises);
-      }
-
-      res.status(200).json({ message: "Get class successfully!!!", class: classDataBySemester });
+      res.status(200).json({ message: "Get class successfully!!!", class: classData });
     } catch (error) {
       console.error("Error:", error);
       res.status(500).json({ message: "Error occurred while fetching data!" });
@@ -83,6 +119,69 @@ class ClassController {
           localField: "classes.course",
           foreignField: "_id",
           as: "course",
+        },
+      },
+    ]);
+    if (student.length === 0) {
+      return res.status(200).json({ message: "ERR_404" });
+    }
+    res.status(200).json({ message: "Get class successfully!!!", class: student });
+  }
+
+  //get class done registered
+  async getClasCreditCompleteRegistration(req, res) {
+    const semester = req.body.semester;
+    const account_id = req.body.account_id;
+    const student = await Student.aggregate([
+      {
+        $match: {
+          account_id: new ObjectId(account_id),
+        },
+      },
+      {
+        $unwind: "$class",
+      },
+      {
+        $match: {
+          "class.status": "Đăng ký mới",
+        },
+      },
+      {
+        $lookup: {
+          from: "class",
+          localField: "class.classCode",
+          foreignField: "_id",
+          as: "classCreditComplete",
+        },
+      },
+      {
+        $unwind: "$classCreditComplete",
+      },
+      {
+        $match: {
+          "classCreditComplete.semester": semester,
+        },
+      },
+      {
+        $lookup: {
+          from: "courses",
+          localField: "classCreditComplete.course",
+          foreignField: "_id",
+          as: "courseOfClass",
+        },
+      },
+      {
+        $unwind: "$courseOfClass",
+      },
+      {
+        $project: {
+          classCode: "$classCreditComplete.classCode",
+          className: "$classCreditComplete.className",
+          expectedClass: "$classCreditComplete.expectedClass",
+          credits: "$courseOfClass.credits",
+          group: "$class.group",
+          courseFee: "$courseOfClass.courseFee",
+          dateRegister: "$class.dateRegister",
         },
       },
     ]);

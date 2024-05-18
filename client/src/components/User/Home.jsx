@@ -52,7 +52,10 @@ const Home = () => {
       setUser(resultStudent.data.student[0])
 
       setCurrentSemester(getCurrentYearSemester())
-      const resultClassSemester = await findClassCredirBySemester(resultStudent.data.student[0]._id, currenSemester)
+      const resultClassSemester = await findClassCredirBySemester(
+        localStorage.getItem('account_id'),
+        getCurrentYearSemester()
+      )
       if (resultClassSemester.status !== 200) {
         setIsLoading(true)
         return
@@ -62,6 +65,7 @@ const Home = () => {
         setIsLoading(true)
         return
       }
+      setDsClass(resultClassSemester.data.class)
       setCreditTotal(resultCredit.data.creditTotal)
       setIsLoading(false)
     }
@@ -71,13 +75,12 @@ const Home = () => {
   useEffect(() => {
     setCurrentSemester(currenSemester)
     const fetchData = async () => {
-      if (user && user._id) {
-        const resultClassSemester = await findClassCredirBySemester(user._id, currenSemester)
-        setDsClass(resultClassSemester.data.class)
-      }
+      const resultClassSemester = await findClassCredirBySemester(localStorage.getItem('account_id'), currenSemester)
+
+      setDsClass(resultClassSemester.data.class)
     }
     fetchData()
-  }, [currenSemester, user])
+  }, [currenSemester])
 
   const DATA = [
     {
@@ -101,6 +104,10 @@ const Home = () => {
   const ref = useRef(null)
   function handleDirectRegisterCourse() {
     window.location.href = '/register-course'
+  }
+
+  function handleDirectClassSchedule() {
+    window.location.href = '/class-schedule'
   }
 
   const enrollmentYear = 2020
@@ -238,7 +245,10 @@ const Home = () => {
         </div>
       </div>
       <div className='grid grid-cols-8 mt-4'>
-        <div className='grid grid-rows-2 shadow shadow-gray-500 rounded-md mr-4 text-link cursor-pointer'>
+        <div
+          onClick={handleDirectClassSchedule}
+          className='grid grid-rows-2 shadow shadow-gray-500 rounded-md mr-4 text-link cursor-pointer'
+        >
           <div className='flex items-center justify-center text-3xl'>
             <IoCalendarNumberOutline />
           </div>
@@ -362,7 +372,7 @@ const Home = () => {
                     </div>
                   </div>
                   <div className='flex justify-end items-center'>
-                    <span>{course.courseCredit}</span>
+                    <span>{course.credits}</span>
                   </div>
                 </li>
               ))}
