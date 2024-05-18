@@ -4,16 +4,23 @@ import avatar from '../assets/avata-sv.jpg'
 import { useEffect, useState } from 'react'
 import 'react-toastify/dist/ReactToastify.css'
 import { apiInforSv } from '../api/Home'
+import { checkAccountType } from '../api/Login'
 
 const Header = () => {
   const [user, setUser] = useState(null)
 
   useEffect(() => {
-    const fetchData = async () => {
-      const res = await apiInforSv(localStorage.getItem('account_id'))
-      setUser(res.data.student[0])
-    }
-    fetchData()
+    // hàm check checkAccountType
+    // const checkAccountType = async () => {
+    //   const res = await checkAccountType(localStorage.getItem('account_id'))
+    //   alert(res.data.account_type)
+    // }
+    // const fetchData = async () => {
+    //   const res = await apiInforSv(localStorage.getItem('account_id'))
+    //   setUser(res.data.student[0])
+    // }
+    // checkAccountType()
+    // fetchData()
   }, [])
 
   return (
