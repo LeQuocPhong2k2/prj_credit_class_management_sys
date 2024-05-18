@@ -17,14 +17,11 @@ async function login(userCode, password, accountType, recaptchaToken) {
   )
   return res
 }
-async function login1(userCode, password, accountType, recaptchaToken) {
+async function checkAccountType(account_id) {
   const res = await axios.post(
-    'http://localhost:3003/account/login',
+    'http://localhost:3003/account/checkAccountType',
     {
-      userCode: userCode,
-      password: password,
-      accountType: accountType,
-      recaptchaToken: recaptchaToken
+      account_id: account_id
     },
     {
       headers: {
@@ -35,4 +32,4 @@ async function login1(userCode, password, accountType, recaptchaToken) {
   return res
 }
 
-export { login, login1 }
+export { login, checkAccountType }

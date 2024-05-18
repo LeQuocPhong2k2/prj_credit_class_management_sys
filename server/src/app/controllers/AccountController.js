@@ -31,5 +31,15 @@ class AccountController {
         return res.status(500).json({ message: "Server Error" });
       });
   }
+  async checkAccountType(req, res) {
+    const account_id = req.body.account_id;
+    const account = await Account.findOne({ _id: account_id });
+    if (account) {
+      const account_type = account.accountType;
+      return res.status(200).json({ account_type: account_type });
+    } else {
+      return res.status(404).json({ message: "Account not found" });
+    }
+  }
 }
 export default new AccountController();
