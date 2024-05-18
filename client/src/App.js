@@ -2,6 +2,7 @@ import Login from '../../client/src/components/User/Login'
 import Home from '../../client/src/components/User/Home'
 import NotFound from '../../client/src/components/NotFound'
 import RegisterCourse from './components/User/RegisterCourse'
+import ClassSchedule from './components/User/ClassSchedule'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
 
@@ -19,6 +20,7 @@ function App() {
           <Route path='/' element={<Home />} onEnter={isAuth} />
           <Route path='/home' element={<Home />} onEnter={isAuth} />
           <Route path='/register-course' element={<RegisterCourse />} onEnter={isAuth} />
+          <Route path='/class-schedule' element={<ClassSchedule />} onEnter={isAuth} />
           <Route path='/login' element={<Login />} />
           <Route path='/not-found' element={<NotFound />} />
           <Route path='*' element={<Navigate to='/not-found' />} />

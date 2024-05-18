@@ -1,0 +1,22 @@
+[
+  {
+    "userName": "Lê Quốc Phòng",
+    "email": "john.doe@example.com",
+    "dateOfBirth": "1995-05-15",
+    "gender": "Nam",
+    "department": "60d5ec1ef8b1411d68fe8456",
+    "major": "60d5ec1ef8b1411d68fe8456",
+    "account_id": "60d5ec1ef8b1411d68fe8492",
+    "definiteClass": "DHKTPM16A",
+    "class": [
+      {
+        "classCode": "662938e7d345847e14103704",
+        "dateRegister": "2021-05-01",
+        "grank": "A",
+        "mark": "90",
+        "status": "Đăng ký mới",
+        "group": "1"
+      }
+    ]
+  }
+]

@@ -39,3 +39,14 @@ td {
   border: 1px solid #ddd;
   border-collapse: collapse;
 }
+
+.h-20r {
+  height: 40rem;
+}
+.morning-event {
+  background-color: #a3e2ff; /* Màu cho buổi sáng */
+}
+
+.evening-event {
+  background-color: #180f05; /* Màu cho buổi tối */
+}

@@ -9,6 +9,7 @@ const ClassDetailSchema = new Schema({
   type: String,
   day: String,
   lesson: String,
+  group: String,
 });
 
 const TimeSchema = new Schema({

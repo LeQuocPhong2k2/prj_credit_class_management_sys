@@ -10,7 +10,7 @@ const verifyToken = (req, res, next) => {
   if (!token) {
     return res.status(403).send({ message: "No token provided!" });
   } else {
-    var ketqua = jwt.verify(token, "mk");
+    var ketqua = jwt.verify(token, "mk"); // check token có hợp lệ không
     if (ketqua) {
       next();
     }
@@ -21,4 +21,5 @@ import StudentController from "../app/controllers/StudentController.js";
 
 router.post("/findStudentByAccountID", verifyToken, StudentController.findStudentByAccountID);
 router.post("/getCreditsByAccountID", verifyToken, StudentController.getCreditsByAccountID);
+router.post("/registerClassCredit", verifyToken, StudentController.registerClassCredit);
 export default router;

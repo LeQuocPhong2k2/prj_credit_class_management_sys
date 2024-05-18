@@ -30,7 +30,7 @@ export default function Login() {
       if (res.status === 200) {
         toast.success('Đăng nhập thành công')
         setTimeout(() => {
-          cookies.set('accses_token', res.data.token, { path: '/', maxAge: 60 * 60 })
+          cookies.set('accses_token', res.data.token, { path: '/', maxAge: 60 * 60 * 24 }) // 24 hour
           localStorage.setItem('account_id', res.data.account_id)
           window.location.href = '/'
         }, 1000)
