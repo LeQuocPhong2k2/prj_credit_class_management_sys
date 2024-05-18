@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -11,9 +11,28 @@ import Col from 'react-bootstrap/Col'
 import Tab from 'react-bootstrap/Tab'
 import Tabs from 'react-bootstrap/Tabs'
 import Modal from 'react-bootstrap/Modal'
+import { checkAccountType } from '../../api/Login'
 
 export default function DashBoardAdmin() {
   const [numClasses, setNumClasses] = useState(1)
+
+  useEffect(() => {
+    const fetchAccountType = async () => {
+      try {
+        const response = await checkAccountType(localStorage.getItem('account_id'))
+        if (response.status === 404) {
+          window.location.href = '/login'
+        } else {
+          if (response.data.account_type !== 'admin') {
+            window.location.href = '/login'
+          }
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+    fetchAccountType()
+  }, [])
 
   const addClass = (event) => {
     event.preventDefault()

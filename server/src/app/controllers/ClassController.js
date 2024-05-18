@@ -194,6 +194,7 @@ class ClassController {
   //get class by code
   async getClasCreditCourseCode(req, res) {
     const course_code = req.body.course_code;
+    const semesters = req.body.semesters;
 
     try {
       const classByCourse = await Class.aggregate([
@@ -211,6 +212,7 @@ class ClassController {
         {
           $match: {
             "course.courseCode": course_code,
+            semester: semesters,
           },
         },
       ]);
