@@ -39,21 +39,20 @@ export default function LeaningResult() {
           <table className='w-full text-center border-collapse'>
             <thead>
               <tr>
-                <th className='border border-gray-300'>STT</th>
-                <th className='border border-gray-300'>Mã lơp học phần</th>
-                <th className='border border-gray-300'>Môn học</th>
-                <th className='border border-gray-300'>Điểm</th>
-                <th className='border border-gray-300'>Thang điểm 4</th>
-                <th className='border border-gray-300'>Điểm chữ</th>
-                <th className='border border-gray-300'>Xếp loại</th>
+                <th className='text-link font-medium border border-gray-300'>STT</th>
+                <th className='text-link font-medium border border-gray-300'>Mã lơp học phần</th>
+                <th className='text-link font-medium border border-gray-300'>Môn học</th>
+                <th className='text-link font-medium border border-gray-300'>Điểm</th>
+                <th className='text-link font-medium border border-gray-300'>Thang điểm 4</th>
+                <th className='text-link font-medium border border-gray-300'>Điểm chữ</th>
+                <th className='text-link font-medium border border-gray-300'>Xếp loại</th>
               </tr>
             </thead>
             <tbody>
               {results.map((result, index) => (
                 <>
-                  <tr key={`result-${index}`}>
-                    <td colSpan='7' className='font-semibold text-base text-slate-600 border border-gray-300'>
-                      {/* You can add any content you want here for the new row */}
+                  <tr className='bg-gray-100 text-left' key={`result-${index}`}>
+                    <td colSpan='7' className='font-light text-base text-slate-600 border border-gray-300'>
                       {result._id}
                     </td>
                   </tr>

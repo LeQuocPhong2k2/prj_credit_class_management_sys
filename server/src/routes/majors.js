@@ -1,7 +1,8 @@
-import express from 'express'
-const router = express.Router()
+import express from "express";
+const router = express.Router();
 
-import MajorController from '../app/controllers/MajorController.js'
+import MajorController from "../app/controllers/MajorController.js";
 
-router.post('/findMajorByMajorID', MajorController.findMajorByMajorID)
-export default router
+router.post("/findMajorByMajorID", MajorController.findMajorByMajorID);
+router.post("/getAllMajor", MajorController.getAllMajor);
+export default router;

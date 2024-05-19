@@ -2,8 +2,133 @@ import Course from "../models/Course.js";
 import Major from "../models/Major.js";
 import Student from "../models/Student.js";
 import { ObjectId } from "mongodb";
+import generateCourseCode from "../../util/UtilFunction.js";
 
 class CourseController {
+  //update Course
+  async addUpdateCourse(req, res) {
+    const courseCode = req.body.courseCode;
+    const courseName = req.body.courseName;
+    const credits = req.body.credits;
+    const elective = req.body.elective;
+    const major_id = req.body.major_id;
+    const courseFee = req.body.courseFee;
+    let prerequisites = req.body.prerequisites;
+    let prerequisitesObjectID = [];
+
+    if (prerequisites === "") {
+      prerequisites = [];
+    } else {
+      if (prerequisites.indexOf(",") > -1) {
+        const prerequisitesArray = prerequisites.split(",");
+
+        const getPrerequisite = prerequisitesArray.map(async (prerequisite) => {
+          const coursePrerequisite = await Course.findOne({ courseCode: prerequisite });
+          return coursePrerequisite._id;
+        });
+        prerequisitesObjectID = await Promise.all(getPrerequisite);
+      } else {
+        const coursePrerequisite = await Course.findOne({ courseCode: prerequisites });
+        prerequisitesObjectID.push(coursePrerequisite._id);
+      }
+    }
+
+    const course = await Course.findOne({
+      courseCode: courseCode,
+    });
+
+    if (course) {
+      course.courseName = courseName;
+      course.credits = credits;
+      course.elective = elective === "Bắt buộc" ? true : false;
+      course.prerequisites = prerequisitesObjectID;
+      course.courseFee = courseFee;
+
+      console.log("course", course);
+      await course.save();
+      res.status(200).json({ message: "Update course successfully!!!" });
+    } else {
+      res.status(404).json({ message: "course not found!!!" });
+    }
+  }
+
+  //delete Course
+  async deleteCourse(req, res) {
+    const courseCode = req.body.courseCode;
+    const course = await Course.findOne({ courseCode: courseCode });
+    if (course) {
+      const major = await Major.findOne({ courses: course._id });
+      if (major) {
+        major.courses.pull(course._id);
+        await major.save();
+        await Course.deleteOne({ courseCode: courseCode })
+          .then(() => {
+            res.status(200).json({ message: "Delete course successfully!!!" });
+          })
+          .catch((err) => {
+            res.status(500).json({ message: "Server error" });
+          });
+      } else {
+        res.status(404).json({ message: "major not found!!!" });
+      }
+    } else {
+      res.status(404).json({ message: "course not found!!!" });
+    }
+  }
+  //add Course
+  async addCourse(req, res) {
+    let prerequisites = req.body.prerequisites;
+    const courseName = req.body.courseName;
+    let courseCode = generateCourseCode();
+    const credits = req.body.credits;
+    let elective = req.body.elective;
+    const major_id = req.body.major_id;
+    const courseFee = req.body.courseFee;
+    let prerequisitesObjectID = [];
+
+    //  try {
+    if (prerequisites === "") {
+      prerequisites = [];
+    } else {
+      if (prerequisites.indexOf(",") > -1) {
+        const prerequisitesArray = prerequisites.split(",");
+
+        const getPrerequisite = prerequisitesArray.map(async (prerequisite) => {
+          const coursePrerequisite = await Course.findOne({ courseCode: prerequisite });
+          return coursePrerequisite._id;
+        });
+        prerequisitesObjectID = await Promise.all(getPrerequisite);
+      } else {
+        const coursePrerequisite = await Course.findOne({ courseCode: prerequisites });
+        prerequisitesObjectID.push(coursePrerequisite._id);
+      }
+    }
+
+    let courseExist = await Course.findOne({ courseCode: courseCode });
+
+    while (courseExist) {
+      courseCode = generateCourseCode();
+      courseExist = await Course.findOne({ courseCode: courseCode });
+    }
+
+    const course = new Course({
+      courseCode: courseCode,
+      courseName: courseName,
+      credits: credits,
+      elective: elective === "Bắt buộc" ? true : false,
+      prerequisites: prerequisitesObjectID,
+      courseFee: courseFee,
+    });
+    const saveCourse = await course.save();
+    const major = await Major.findOne({ _id: new ObjectId(major_id) });
+    major.courses.push(saveCourse._id);
+    await major.save();
+    res.status(200).json({ message: "Add course successfully!!!", course: saveCourse });
+    // } catch (err) {
+    //   res.status(500).json({ message: "Server errorr" });
+    // }
+  }
+
   //get Course đăng ký mới
   async getCourseNew(req, res) {
     const account_id = req.body.account_id;
@@ -139,27 +264,39 @@ class CourseController {
   //get Course của ngành
   async getAllCourseOfMajor(req, res) {
     const major_id = req.body.major_id;
-    const major = await Major.findOne({ _id: major_id });
-    let resultData = [];
-    if (major) {
-      let promises = major.courses.map(async (e) => {
-        const course = await Course.findOne({ _id: e });
-        let prerequisites;
-        const coursePrerequisites = await Promise.all(
-          course.prerequisites.map(async (prerequisiteId) => {
-            const prerequisiteCourse = await Course.findById(prerequisiteId);
-            return prerequisiteCourse.courseCode.concat("(b)");
-          })
-        );
-        prerequisites = await Promise.all(coursePrerequisites);
-        return { courseCode: course.courseCode, courseName: course.courseName, courseCredit: course.credits, elective: course.elective, prerequisites: prerequisites };
-      });
-      resultData = await Promise.all(promises);
-      res.status(200).json({ message: "Get course successfully!!!", courses: resultData });
-    } else {
-      console.log("Không tìm thấy major");
-      res.status(404).json({ message: "major not found!!!" });
-    }
+    try {
+      const majors = await Major.aggregate([
+        {
+          $match: {
+            _id: new ObjectId(major_id),
+          },
+        },
+        {
+          $lookup: {
+            from: "courses",
+            localField: "courses",
+            foreignField: "_id",
+            as: "courses",
+          },
+        },
+        {
+          $unwind: "$courses",
+        },
+        {
+          $lookup: {
+            from: "courses",
+            localField: "courses.prerequisites",
+            foreignField: "_id",
+            as: "courses.prerequisites",
+          },
+        },
+      ]);
+      if (majors) {
+        res.status(200).json({ message: "Get course successfully!!!", courses: majors });
+      } else {
+        res.status(404).json({ message: "major not found!!!" });
+      }
+    } catch (err) {}
   }
 
   // get Course by courseID

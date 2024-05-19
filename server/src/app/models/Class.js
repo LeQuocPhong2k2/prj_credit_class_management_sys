@@ -41,6 +41,7 @@ const ClassSchema = new Schema(
     time: TimeSchema,
     status: String,
     classDetails: [ClassDetailSchema],
+    expectedClass: String,
   },
   { collection: "class" }
 );

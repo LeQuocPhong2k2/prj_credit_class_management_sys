@@ -2,6 +2,18 @@ import Account from "../models/Account.js";
 import Teacher from "../models/Teacher.js";
 
 class TeacherController {
+  async getAllTeacher(req, res) {
+    try {
+      const teachers = await Teacher.find();
+      res.status(200).json({
+        message: "Get all teacher successfully!!!",
+        teachers: teachers,
+      });
+    } catch (error) {
+      res.status(500).json({ message: "ERR_500" });
+    }
+  }
+
   async findTeacherByID(req, res) {
     const teacher_id = req.body.teacher_id;
     try {

@@ -9,4 +9,7 @@ router.post("/pendingCourses", CourseController.pendingCourses);
 router.post("/getAllCourseOfMajor", CourseController.getAllCourseOfMajor);
 router.post("/getCourseNew", CourseController.getCourseNew);
 router.post("/getCourseByStatus", CourseController.getCourseByStatus);
+router.post("/addCourse", CourseController.addCourse);
+router.post("/deleteCourse", CourseController.deleteCourse);
+router.post("/addUpdateCourse", CourseController.addUpdateCourse);
 export default router;

@@ -3,6 +3,7 @@ import Course from "../models/Course.js";
 import moment from "moment-timezone";
 import Student from "../models/Student.js";
 import { ObjectId } from "mongodb";
+import generateCourseCode from "../../util/UtilFunction.js";
 class ClassController {
   //get class by classID
   async findClassByClassID(req, res) {
@@ -274,33 +275,45 @@ class ClassController {
 
   // create a new class
   async createClass(req, res) {
-    const { className, course, maxStudents } = req.body;
-    // lấy danh sách teacher
-    const teacher = req.body.list_teacherId;
+    const majorCredit = req.body.majorCredit;
+    const courseNameCredit = req.body.courseNameCredit;
+    const expectedClass = req.body.expectedClass;
+    const maxStudent = req.body.maxStudent;
+    const registrationOpenTime = req.body.registrationOpenTime;
+    const registrationCloseTime = req.body.registrationCloseTime;
+    const startTime = req.body.startTime;
+    const endTime = req.body.endTime;
+    const classDetails = req.body.classDetails;
+    const semester = req.body.semester;
+    let classCode = generateCourseCode();
 
-    // lấy tên classNameNew = className - course
-    const classNameNew = className + " " + "-" + " " + course;
-
-    // console.log(
-    //   'Các thông tin nhận được: ',
-    //   className,
-    //   course,
-    //   maxStudents,
-    //   teacher,
-    //   classNameNew
-    // )
-    // return res.status(200).json({ message: 'Create class successfully!!!' })
+    let classExist = await Class.findOne({ classCode: classCode });
+    while (classExist) {
+      classCode = generateCourseCode();
+      classExist = await Class.findOne({ classCode: classCode });
+    }
+    let course = await Course.findOne({ _id: new ObjectId(courseNameCredit) });
 
     const newClass = new Class({
-      className: classNameNew,
-      course: course,
-      teacher: Array.isArray(teacher) ? teacher : [teacher],
-      maxStudents: maxStudents,
+      className: course.courseName,
+      classCode: classCode,
+      course: course._id,
+      maxStudents: maxStudent,
+      currentStudents: [],
+      waitlist: [],
+      time: {
+        registrationOpenTime: registrationOpenTime,
+        registrationCloseTime: registrationCloseTime,
+        startTime: startTime,
+        endTime: endTime,
+      },
+      status: "Chờ sinh viên đăng ký",
+      classDetails: classDetails,
+      semester: semester,
+      expectedClass: expectedClass,
     });
-    newClass.save();
-    console.log("Tạo class thành công");
 
-    res.status(200).json({ message: "Create class successfully!!!", newClass: newClass });
+    const saveClass = await newClass.save();
   }
   // api lấy id của sinh viên và id của lớp học, sau đó thêm sinh viên vào lớp học trong mảng currentStudents
   async addStudentToClass(req, res) {
@@ -397,5 +410,62 @@ class ClassController {
       res.status(500).json({ message: err.message });
     }
   }
+
+  // get all class
+  async getAllClass(req, res) {
+    try {
+      const classes = await Class.find();
+      res.status(200).json({ message: "Get all classes successfully!!!", classes: classes });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  }
+
+  //delete class
+  async deleteClass(req, res) {
+    const classCode = req.body.classCode;
+    const classData = await Class.findOne({ classCode: classCode });
+    if (classData) {
+      await Class.deleteOne({ classCode: classCode });
+      res.status(200).json({ message: "Delete class successfully!!!" });
+    }
+  }
+  //confrimWaitList
+  async confrimWaitList(req, res) {
+    const classCode = req.body.classCode;
+    const classData = await Class.findOne({ classCode: classCode });
+
+    if (classData) {
+      //push student from waitlist to currentStudents
+      classData.currentStudents.push(...classData.waitlist);
+      classData.waitlist = [];
+      classData.save();
+      res.status(200).json({ message: "Confrim waitlist successfully!!!" });
+    } else {
+      res.status(404).json({ message: "Class not in waitlist!!!" });
+    }
+  }
+
+  //cancelWaitList
+  async cancelWaitList(req, res) {
+    const classCode = req.body.classCode;
+    const classData = await Class.findOne({ classCode: classCode });
+    if (classData) {
+      for (let studentID of classData.waitlist) {
+        const student = await Student.findOne({ _id: new ObjectId(studentID) });
+        if (student) {
+          console.log("student: ", student);
+          console.log("classData._id ", classData._id);
+          await Student.updateOne({ _id: new ObjectId(student._id) }, { $pull: { class: { classCode: new ObjectId(classData._id) } } });
+        }
+      }
+      classData.waitlist = [];
+      classData.save();
+      res.status(200).json({ message: "Cancel waitlist successfully!!!" });
+    } else {
+      res.status(404).json({ message: "Class not in wait  list!!!" });
+    }
+  }
 }
+
 export default new ClassController();

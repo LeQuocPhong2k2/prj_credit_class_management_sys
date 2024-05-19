@@ -304,9 +304,9 @@ const RegisterCourse = () => {
   }
 
   return (
-    <div className='grid grid-flow-row pl-40 pr-40 pt-20 text-color-wrapper'>
+    <div className='grid grid-flow-row pl-40 pr-40 text-color-wrapper'>
       <ToastContainer duration={3500} />
-      <div className='grid gap-2 bg-white shadow-sm rounded-md p-4 h-88vh overflow-y-scroll'>
+      <div className='grid gap-2 mt-16 bg-white shadow-sm rounded-md pr-4 pl-4 h-88vh overflow-y-scroll'>
         <div className='flex justify-start items-center font-bold text-lg border-b-2'>
           <span>Đăng ký học phần</span>
         </div>
@@ -514,7 +514,7 @@ const RegisterCourse = () => {
                   <td className='text-left pl-4'>{course.courseName}</td>
                   <td>{course.courseCredit}</td>
                   <td>
-                    {course.elective ? (
+                    {!course.elective ? (
                       <div className='flex justify-center items-center text-red-500 text-xl'>
                         <IoCloseCircleSharp />
                       </div>

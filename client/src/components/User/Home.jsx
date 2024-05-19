@@ -44,7 +44,12 @@ const Home = () => {
     document.title = 'Trang chủ'
     const fetchData = async () => {
       setIsLoading(true)
-      const resultStudent = await apiInforSv(localStorage.getItem('account_id'))
+      let resultStudent
+      try {
+        resultStudent = await apiInforSv(localStorage.getItem('account_id'))
+      } catch (err) {
+        window.location.href = '/login'
+      }
       if (resultStudent.status !== 200) {
         setIsLoading(true)
         return
