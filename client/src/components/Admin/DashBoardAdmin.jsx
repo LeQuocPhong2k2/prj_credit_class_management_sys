@@ -161,7 +161,22 @@ export default function DashBoardAdmin() {
     document.getElementById('FrmPrerequisites').value = ''
     document.getElementById('FrmCourseFee').value = ''
   }
+
+  function checkValidCours() {
+    let courseName = document.getElementById('FrmCourseName').value
+    let courseFee = document.getElementById('FrmCourseFee').value
+    if (courseName === '' || courseFee === '') {
+      return false
+    }
+    return true
+  }
+
   function handleAddCourse() {
+    if (!checkValidCours()) {
+      toast('Vui lòng nhập đầy đủ thông tin')
+      return
+    }
+
     let data = {
       courseCode: frmCourseCode,
       courseName: document.getElementById('FrmCourseName').value,
@@ -171,7 +186,6 @@ export default function DashBoardAdmin() {
       courseFee: document.getElementById('FrmCourseFee').value,
       major_id: majorId
     }
-    console.log(frmElective)
     if (!enventUpdateCourse) {
       setIsLoading(true)
       const res = addCourse(data)
