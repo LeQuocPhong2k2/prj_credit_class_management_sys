@@ -29,6 +29,6 @@ B5: npm start
   
   password:admin
 
-## Thành viên nhóm: 02
+## Thành viên nhóm: 05
 	- Lê Quốc Phòng
 	- Nguyễn Đức Tài
