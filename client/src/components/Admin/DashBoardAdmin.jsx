@@ -350,7 +350,7 @@ export default function DashBoardAdmin() {
         onSelect={handleSelect}
         defaultActiveKey='class-credit'
         id='uncontrolled-tab-example'
-        className='p-2 bg-white mt-10'
+        className='p-2 bg-white'
       >
         <Tab eventKey='class-credit' title='Lớp học phần'>
           <Container className='bg-white'>
@@ -663,7 +663,7 @@ export default function DashBoardAdmin() {
               <br />
             </Form>
 
-            <div className='h-96 overflow-y-auto '>
+            <div className='h-56 overflow-y-auto '>
               <Table striped bordered hover>
                 <thead>
                   <tr>
