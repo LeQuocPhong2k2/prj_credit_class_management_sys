@@ -27,6 +27,10 @@ import {
   confrimWaitList,
   cancelWaitList
 } from '../../api/DashBoard'
+import { MdCancel } from 'react-icons/md'
+import { FaCheckCircle } from 'react-icons/fa'
+import { BiSolidShow } from 'react-icons/bi'
+import { MdDelete } from 'react-icons/md'
 
 export default function DashBoardAdmin() {
   const cookies = Cookies()
@@ -93,9 +97,9 @@ export default function DashBoardAdmin() {
     return num.toLocaleString('en-US')
   }
 
-  function handleDeleteCreditClass(event) {
+  function handleDeleteCreditClass(classCode) {
     setIsLoading(true)
-    const res = deleteCreditClass(event.target.value)
+    const res = deleteCreditClass(classCode)
     res.then((res) => {
       if (res.status === 200) {
         setFetchData(!fetchData)
@@ -182,7 +186,7 @@ export default function DashBoardAdmin() {
       courseName: document.getElementById('FrmCourseName').value,
       credits: frmCredits,
       elective: frmElective,
-      prerequisites: frmPrerequisites,
+      prerequisites: document.getElementById('FrmPrerequisites').value,
       courseFee: document.getElementById('FrmCourseFee').value,
       major_id: majorId
     }
@@ -345,12 +349,12 @@ export default function DashBoardAdmin() {
   }
 
   return (
-    <div className='p-4 bg-white'>
+    <div className='p-4  bg-white'>
       <Tabs
         onSelect={handleSelect}
         defaultActiveKey='class-credit'
         id='uncontrolled-tab-example'
-        className='p-2 bg-white'
+        className='bg-white mt-8'
       >
         <Tab eventKey='class-credit' title='Lớp học phần'>
           <Container className='bg-white'>
@@ -372,7 +376,7 @@ export default function DashBoardAdmin() {
             <Form>
               <Row>
                 <Col>
-                  <Form.Group className='mb-3' controlId='formBasicEmail'>
+                  <Form.Group className='pb-2' controlId='formBasicEmail'>
                     <Form.Label className=' d-flex'>Chọn chuyên ngành</Form.Label>
                     {/* <Form.Control type='email' placeholder='Enter email' /> */}
                     <select
@@ -390,7 +394,7 @@ export default function DashBoardAdmin() {
                   </Form.Group>
                 </Col>
                 <Col>
-                  <Form.Group className='mb-3' controlId='formBasicEmail'>
+                  <Form.Group className='pb-2' controlId='formBasicEmail'>
                     <Form.Label className=' d-flex'>Chọn môn học</Form.Label>
                     {/* <Form.Control type='email' placeholder='Enter email' /> */}
                     <Form.Select aria-label='Default select example' name='courseNameCredit' id='courseNameCredit'>
@@ -404,7 +408,7 @@ export default function DashBoardAdmin() {
                 </Col>
 
                 <Col>
-                  <Form.Group className='mb-3' controlId='formBasicEmail'>
+                  <Form.Group className='pb-2' controlId='formBasicEmail'>
                     <Form.Label className=' d-flex'>Lớp danh nghĩa</Form.Label>
                     <Form.Select aria-label='Default select example' name='expectedClass' id='expectedClass'>
                       <option value='DHKTPM16A'>DHKTPM16A</option>
@@ -415,14 +419,14 @@ export default function DashBoardAdmin() {
                 </Col>
 
                 <Col>
-                  <Form.Group className='mb-3'>
+                  <Form.Group className='pb-2'>
                     <Form.Label className=' d-flex'>Mã lớp</Form.Label>
                     <Form.Control type='text' placeholder='Password' name='classCode' disabled />
                   </Form.Group>
                 </Col>
 
                 <Col>
-                  <Form.Group className='mb-3'>
+                  <Form.Group className='pb-2'>
                     <Form.Label className=' d-flex'>Số lượng SV tối đa</Form.Label>
                     <Form.Control type='number' required placeholder='max Student' name='maxStudent' id='maxStudent' />
                   </Form.Group>
@@ -431,7 +435,7 @@ export default function DashBoardAdmin() {
 
               <Row>
                 <Col>
-                  <Form.Group className='mb-3'>
+                  <Form.Group className='pb-2'>
                     <Form.Label className=' d-flex'>Ngày bắt đầu đăng ký</Form.Label>
                     <Form.Control
                       required
@@ -444,7 +448,7 @@ export default function DashBoardAdmin() {
                 </Col>
 
                 <Col>
-                  <Form.Group className='mb-3'>
+                  <Form.Group className='pb-2'>
                     <Form.Label className=' d-flex'>Ngày kết thúc đăng ký</Form.Label>
                     <Form.Control
                       required
@@ -457,7 +461,7 @@ export default function DashBoardAdmin() {
                 </Col>
 
                 <Col>
-                  <Form.Group className='mb-3'>
+                  <Form.Group className='pb-2'>
                     <Form.Label className=' d-flex'>Thời gian bắt đầu môn học</Form.Label>
                     <Form.Control
                       required
@@ -470,7 +474,7 @@ export default function DashBoardAdmin() {
                 </Col>
 
                 <Col>
-                  <Form.Group className='mb-3'>
+                  <Form.Group className='pb-2'>
                     <Form.Label className=' d-flex'>Thời gian kết thúc môn học</Form.Label>
                     <Form.Control
                       required
@@ -484,7 +488,7 @@ export default function DashBoardAdmin() {
               </Row>
               <Row>
                 <Col>
-                  <Form.Group className='mb-3'>
+                  <Form.Group className='pb-2'>
                     <Form.Label className='d-flex' style={{ fontSize: '18px', fontWeight: 'bold', color: '#007bff' }}>
                       Chi tiết lớp học
                       <button
@@ -527,7 +531,7 @@ export default function DashBoardAdmin() {
                   >
                     <Row>
                       <Col>
-                        <Form.Group className='mb-3' controlId={`facility-${index}`}>
+                        <Form.Group className='pb-2' controlId={`facility-${index}`}>
                           <Form.Label className=' d-flex'>Cơ sở</Form.Label>
                           <Form.Select aria-label='Default select example' name='facility' id={`facility-${index}`}>
                             <option value='Cơ sở 1 Hồ Chí Minh'>Cơ sở 1 Nguyễn Văn Bảo TPHCM</option>
@@ -537,7 +541,7 @@ export default function DashBoardAdmin() {
                       </Col>
 
                       <Col>
-                        <Form.Group className='mb-3' controlId={`house-${index}`}>
+                        <Form.Group className='pb-2' controlId={`house-${index}`}>
                           <Form.Label className='d-flex'>Dãy nhà</Form.Label>
                           <Form.Select aria-label='Default select example' name='house' id={`house-${index}`}>
                             <option value='A'>A</option>
@@ -547,7 +551,7 @@ export default function DashBoardAdmin() {
                         </Form.Group>
                       </Col>
                       <Col>
-                        <Form.Group className='mb-3' controlId={`room-${index}`}>
+                        <Form.Group className='pb-2' controlId={`room-${index}`}>
                           <Form.Label className='d-flex'>Phòng</Form.Label>
                           <Form.Select aria-label='Default select example' name='room' id={`room-${index}`}>
                             <option value='1'>1</option>
@@ -559,7 +563,7 @@ export default function DashBoardAdmin() {
                         </Form.Group>
                       </Col>
                       <Col>
-                        <Form.Group className='mb-3' controlId={`teacher-${index}`}>
+                        <Form.Group className='pb-2' controlId={`teacher-${index}`}>
                           <Form.Label className='d-flex'>Giảng viên</Form.Label>
                           <Form.Select aria-label='Default select example' name='teacher' id={`teacher-${index}`}>
                             {teachers.map((teacher, teacherIndex) => (
@@ -574,7 +578,7 @@ export default function DashBoardAdmin() {
 
                     <Row>
                       <Col>
-                        <Form.Group className='mb-3' controlId={`type-${index}`}>
+                        <Form.Group className='pb-2' controlId={`type-${index}`}>
                           <Form.Label className='d-flex'>Type</Form.Label>
                           <Form.Select aria-label='Default select example' name='type' id={`type-${index}`}>
                             <option value='TH'>Phòng học Thực Hành</option>
@@ -583,7 +587,7 @@ export default function DashBoardAdmin() {
                         </Form.Group>
                       </Col>
                       <Col>
-                        <Form.Group className='mb-3' controlId={`day-${index}`}>
+                        <Form.Group className='pb-2' controlId={`day-${index}`}>
                           <Form.Label className='d-flex'>Thứ</Form.Label>
                           <Form.Select aria-label='Default select example' name='day' id={`day-${index}`}>
                             <option value='2'>Thứ 2</option>
@@ -597,7 +601,7 @@ export default function DashBoardAdmin() {
                         </Form.Group>
                       </Col>
                       <Col>
-                        <Form.Group className='mb-3' controlId={`lesson-${index}`}>
+                        <Form.Group className='pb-2' controlId={`lesson-${index}`}>
                           <Form.Label className='d-flex'>Tiết học</Form.Label>
                           <Form.Select aria-label='Default select example' name='lesson' id={`lesson-${index}`}>
                             <option value='1-3'>1-3</option>
@@ -609,7 +613,7 @@ export default function DashBoardAdmin() {
                         </Form.Group>
                       </Col>
                       <Col>
-                        <Form.Group className='mb-3' controlId={`group-${index}`}>
+                        <Form.Group className='pb-2' controlId={`group-${index}`}>
                           <Form.Label className='d-flex'>Nhóm thực hành</Form.Label>
                           <Form.Select aria-label='Default select example' name='group' id={`group-${index}`}>
                             <option value='1'>1</option>
@@ -625,7 +629,7 @@ export default function DashBoardAdmin() {
 
               <Row>
                 <Col>
-                  <Form.Group className='flex gap-4 pt-4 items-center '>
+                  <Form.Group className='flex gap-4 pt-2 items-center '>
                     <Form.Label className=' d-flex'>Học Kỳ</Form.Label>
                     <select name='semester' id='semester' className='h-9 text-sm rounded-lg'>
                       {semesters.map((semester, index) =>
@@ -663,7 +667,7 @@ export default function DashBoardAdmin() {
               <br />
             </Form>
 
-            <div className='h-56 overflow-y-auto '>
+            <div className='h-44 overflow-y-auto text-sm'>
               <Table striped bordered hover>
                 <thead>
                   <tr>
@@ -691,31 +695,31 @@ export default function DashBoardAdmin() {
                       <td>{classItem.currentStudents.length}</td>
                       <td>{classItem.waitlist.length}</td>
                       <td>
-                        <Button variant='primary' onClick={() => handleCanncelWaitList(classItem.classCode)}>
-                          Canncel
-                        </Button>
+                        <MdCancel
+                          className='text-xl text-red-500 active:text-red-400 cursor-pointer'
+                          onClick={() => handleCanncelWaitList(classItem.classCode)}
+                        />
                       </td>
                       <td>
-                        <Button variant='primary' onClick={() => handleConfirmWaitList(classItem.classCode)}>
-                          Confirm
-                        </Button>
+                        <FaCheckCircle
+                          className='text-xl text-green-500 active:text-green-400 cursor-pointer'
+                          onClick={() => handleConfirmWaitList(classItem.classCode)}
+                        />
                       </td>
                       <td>{classItem.status}</td>
                       <td>{classItem.expectedClass}</td>
                       <td>{classItem.semester}</td>
                       <td>
-                        <Button variant='primary' onClick={() => handleShow(classItem.classDetails)}>
-                          Show
-                        </Button>
+                        <BiSolidShow
+                          className='text-2xl active:text-gray-400 cursor-pointer'
+                          onClick={() => handleShow(classItem.classDetails)}
+                        />
                       </td>
                       <td>
-                        <Button
-                          variant='danger'
-                          value={classItem.classCode}
-                          onClick={(event) => handleDeleteCreditClass(event)}
-                        >
-                          Xóa
-                        </Button>
+                        <MdDelete
+                          className='text-2xl text-red-500 active:text-red-400 cursor-pointer'
+                          onClick={() => handleDeleteCreditClass(classItem.classCode)}
+                        />
                       </td>
                     </tr>
                   ))}
@@ -821,12 +825,7 @@ export default function DashBoardAdmin() {
             <div className='grid grid-flow-col justify-center gap-10'>
               <div className='flex items-center justify-start gap-2'>
                 <span>Môn tiên quyết:</span>
-                <input
-                  id='FrmPrerequisites'
-                  className='h-7 p-2'
-                  type='text'
-                  onChange={(e) => setFrmPrerequisites(e.target.value)}
-                />
+                <input id='FrmPrerequisites' className='h-7 p-2' type='text' />
               </div>
               <div className='flex items-center justify-start gap-2'>
                 <span>Học phí:</span>

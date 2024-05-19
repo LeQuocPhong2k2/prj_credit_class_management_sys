@@ -24,7 +24,9 @@ class CourseController {
 
         const getPrerequisite = prerequisitesArray.map(async (prerequisite) => {
           const coursePrerequisite = await Course.findOne({ courseCode: prerequisite });
-          return coursePrerequisite._id;
+          if (coursePrerequisite) {
+            return coursePrerequisite._id;
+          }
         });
         prerequisitesObjectID = await Promise.all(getPrerequisite);
       } else {
