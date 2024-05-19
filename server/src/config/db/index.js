@@ -22,7 +22,7 @@ function startAutoUpdate() {
 
 async function connect() {
   try {
-    await mongoose.connect("mongodb+srv://taicutm:sYvSx1WOBOMVp0U3@taicluster.1ufpd4z.mongodb.net/LopHocTinChi?retryWrites=true&w=majority");
+    await mongoose.connect("private");
     // startAutoUpdate();
     console.log("Kết nối db thành công!!!");
   } catch (err) {
